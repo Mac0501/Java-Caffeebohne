@@ -1,4 +1,6 @@
 package com.example.baum;
+import javafx.beans.property.ObjectProperty;
+import javafx.beans.property.SimpleObjectProperty;
 
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
@@ -6,14 +8,14 @@ import javafx.beans.property.StringProperty;
 public class Student {
     private final int id;
     private final String name;
-    private final String className;
-    private final String company;
+    private final ObjectProperty<Course> course;
+    private final ObjectProperty<Company> company;
 
-    public Student(int id, String name, String className, String company) {
+    public Student(int id, String name, Course course, Company company) {
         this.id = id;
         this.name = name;
-        this.className = className;
-        this.company = company;
+        this.course = new SimpleObjectProperty<>(course);
+        this.company = new SimpleObjectProperty<>(company);
     }
 
     public int getId() {
@@ -24,23 +26,14 @@ public class Student {
         return name;
     }
 
-    public String getClassName() {
-        return className;
-    }
-
-    public String getCompany() {
-        return company;
-    }
-
     public StringProperty nameProperty() {
         return new SimpleStringProperty(name);
     }
 
-    public StringProperty classProperty() {
-        return new SimpleStringProperty(className);
+    public ObjectProperty<Course> courseProperty() {
+        return course;
     }
-
-    public StringProperty companyProperty() {
-        return new SimpleStringProperty(company);
+    public ObjectProperty<Company> companyProperty() {
+        return company;
     }
 }
