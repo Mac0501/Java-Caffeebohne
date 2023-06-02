@@ -1,6 +1,7 @@
 package com.example.baum;
 
 import javafx.application.Application;
+import javafx.beans.property.SimpleStringProperty;
 import javafx.geometry.Insets;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
@@ -55,10 +56,10 @@ public class StudentManagementApp extends Application {
         nameColumn.setCellValueFactory(cellData -> cellData.getValue().nameProperty());
 
         TableColumn<Student, String> classColumn = new TableColumn<>("Class");
-        classColumn.setCellValueFactory(cellData -> cellData.getValue().classProperty());
+        classColumn.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue().courseProperty().getName()));
 
         TableColumn<Student, String> companyColumn = new TableColumn<>("Company");
-        companyColumn.setCellValueFactory(cellData -> cellData.getValue().companyProperty());
+        companyColumn.setCellValueFactory(cellData -> cellData.getValue().companyProperty().get().nameProperty());
 
         studentTable.getColumns().addAll(nameColumn, classColumn, companyColumn);
         studentTable.setItems(studentData.getStudentList());

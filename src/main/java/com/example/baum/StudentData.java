@@ -29,25 +29,30 @@ public class StudentData {
                 int id = resultSet.getInt("id");
                 String name = resultSet.getString("name");
                 String className = resultSet.getString("class");
-                String company = resultSet.getString("company");
-                Student student = new Student(id, name, className, company);
+                String companyName = resultSet.getString("company");
+                Course course = new Course(0, className, null); // Modify with actual Course data
+                Company company = new Company(0, companyName); // Modify with actual Company data
+                Student student = new Student(id, name, course, company);
                 studentList.add(student);
             }
         } catch (SQLException e) {
             e.printStackTrace();
         }
     }
-
-    public void addStudent(String name, String className, String company) {
+    
+    public void addStudent(String name, String className, String companyName) {
         String insertQuery = "INSERT INTO student (name, class, company) VALUES (?, ?, ?)";
         try {
             PreparedStatement statement = databaseManager.getConnection().prepareStatement(insertQuery);
             statement.setString(1, name);
             statement.setString(2, className);
-            statement.setString(3, company);
+            statement.setString(3, companyName);
             statement.executeUpdate();
-
-            Student newStudent = new Student(getLastInsertedId(), name, className, company);
+    
+            int lastInsertedId = getLastInsertedId(); // Modify with actual implementation
+            Course course = new Course(0, className, null); // Modify with actual Course data
+            Company company = new Company(0, companyName); // Modify with actual Company data
+            Student newStudent = new Student(lastInsertedId, name, course, company);
             studentList.add(newStudent);
             clearFields();
         } catch (SQLException e) {
