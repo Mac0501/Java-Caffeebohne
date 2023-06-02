@@ -7,4 +7,15 @@ module com.example.baum {
 
     opens com.example.baum to javafx.fxml;
     exports com.example.baum;
+
+
+
+
+    exports com.example.baum.test; // Export the necessary package(s) to javafx.graphics
+
+
+    opens com.example.baum.test to javafx.fxml;
+
+
+
 }
