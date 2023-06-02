@@ -2,10 +2,6 @@ package com.example.baum;
 
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import javafx.beans.property.SimpleStringProperty;
-import javafx.beans.property.StringProperty;
-
-import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -25,7 +21,7 @@ public class StudentData {
     }
 
     public void fetchStudentsFromDatabase() {
-        String selectQuery = "SELECT * FROM students";
+        String selectQuery = "SELECT * FROM student";
         try {
             Statement statement = databaseManager.getConnection().createStatement();
             ResultSet resultSet = statement.executeQuery(selectQuery);
@@ -43,7 +39,7 @@ public class StudentData {
     }
 
     public void addStudent(String name, String className, String company) {
-        String insertQuery = "INSERT INTO students (name, class, company) VALUES (?, ?, ?)";
+        String insertQuery = "INSERT INTO student (name, class, company) VALUES (?, ?, ?)";
         try {
             PreparedStatement statement = databaseManager.getConnection().prepareStatement(insertQuery);
             statement.setString(1, name);
@@ -61,7 +57,7 @@ public class StudentData {
 
     public void removeStudent(Student student) {
         if (student != null) {
-            String deleteQuery = "DELETE FROM students WHERE id = ?";
+            String deleteQuery = "DELETE FROM student WHERE id = ?";
             try {
                 PreparedStatement statement = databaseManager.getConnection().prepareStatement(deleteQuery);
                 statement.setInt(1, student.getId());

@@ -80,6 +80,6 @@ public class StudentManagementApp extends Application {
     }
 
     private void createTableIfNotExists() {
-        databaseManager.createTableIfNotExists();
+        databaseManager.createTablesIfNotExists();
     }
 }
