@@ -46,7 +46,8 @@ public class StudentManagementApp extends Application {
 
         // Buttons for student operations
         Button addButton = new Button("Add");
-        addButton.setOnAction(e -> studentData.addStudent(nameField.getText(), classField.getText(), companyField.getText()));
+        addButton.setOnAction(
+                e -> studentData.addStudent(nameField.getText(), classField.getText(), companyField.getText()));
 
         Button removeButton = new Button("Remove");
         removeButton.setOnAction(e -> studentData.removeStudent(studentTable.getSelectionModel().getSelectedItem()));
@@ -56,7 +57,8 @@ public class StudentManagementApp extends Application {
         nameColumn.setCellValueFactory(cellData -> cellData.getValue().nameProperty());
 
         TableColumn<Student, String> classColumn = new TableColumn<>("Class");
-        classColumn.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue().courseProperty().getName()));
+        classColumn.setCellValueFactory(
+                cellData -> new SimpleStringProperty(cellData.getValue().courseProperty().getName()));
 
         TableColumn<Student, String> companyColumn = new TableColumn<>("Company");
         companyColumn.setCellValueFactory(cellData -> cellData.getValue().companyProperty().get().nameProperty());

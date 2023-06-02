@@ -1,4 +1,5 @@
 package com.example.baum;
+
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.StringProperty;
@@ -35,7 +36,3 @@ public class Course {
         return new SimpleStringProperty(name);
     }
 }
-
-
-
-

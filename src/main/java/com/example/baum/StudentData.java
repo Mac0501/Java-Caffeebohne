@@ -39,7 +39,7 @@ public class StudentData {
             e.printStackTrace();
         }
     }
-    
+
     public void addStudent(String name, String className, String companyName) {
         String insertQuery = "INSERT INTO student (name, class, company) VALUES (?, ?, ?)";
         try {
@@ -48,7 +48,7 @@ public class StudentData {
             statement.setString(2, className);
             statement.setString(3, companyName);
             statement.executeUpdate();
-    
+
             int lastInsertedId = getLastInsertedId(); // Modify with actual implementation
             Course course = new Course(0, className, null); // Modify with actual Course data
             Company company = new Company(0, companyName); // Modify with actual Company data
@@ -92,4 +92,3 @@ public class StudentData {
         // companyField.clear();
     }
 }
-

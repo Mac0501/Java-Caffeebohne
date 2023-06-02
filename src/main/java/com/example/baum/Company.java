@@ -20,7 +20,6 @@ public class Company {
         return name;
     }
 
-
     public StringProperty nameProperty() {
         return new SimpleStringProperty(name);
     }

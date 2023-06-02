@@ -30,19 +30,19 @@ public class DatabaseManager {
             e.printStackTrace();
             return;
         }
-    
+
         try {
             Statement statement = connection.createStatement();
             String[] queries = createTableQuery.split(";");
-    
+
             for (String query : queries) {
                 query = query.trim();
-    
+
                 if (!query.isEmpty()) {
                     statement.executeUpdate(query);
                 }
             }
-    
+
             System.out.println("All SQL commands executed successfully.");
         } catch (SQLException e) {
             e.printStackTrace();
