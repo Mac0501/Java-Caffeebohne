@@ -11,9 +11,9 @@ public class DatabaseManager {
 
     public void connect() {
         try {
-            String dbURL = "jdbc:mysql://localhost:25000/bambus";
+            String dbURL = "jdbc:mysql://localhost:3307/bambus";
             String username = "root";
-            String password = "bigbrother";
+            String password = "root";
             connection = DriverManager.getConnection(dbURL, username, password);
             System.out.println("Connected to the database!");
         } catch (SQLException e) {

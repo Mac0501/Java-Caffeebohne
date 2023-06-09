@@ -8,77 +8,82 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 
-public class StudentData {
-    private final ObservableList<Student> studentList;
+public class CompanyData {
+    private final ObservableList<Company> companyList;
     private final DatabaseManager databaseManager;
-    private final CourseData courseData;
-    private final CompanyData companyData;
 
-    public StudentData(DatabaseManager databaseManager, CourseData courseData, CompanyData companyData) {
+    public CompanyData(DatabaseManager databaseManager) {
         this.databaseManager = databaseManager;
-        this.courseData = courseData;
-        this.companyData = companyData;
-        studentList = FXCollections.observableArrayList();
+        companyList = FXCollections.observableArrayList();
     }
 
-    public ObservableList<Student> getStudentList() {
-        return studentList;
+    public ObservableList<Company> getCompanyList() {
+        return companyList;
     }
 
-    public void fetchStudentsFromDatabase() {
-        String selectQuery = "SELECT * FROM student";
+    public void fetchCompaniesFromDatabase() {
+        String selectQuery = "SELECT * FROM company";
         try {
             Statement statement = databaseManager.getConnection().createStatement();
             ResultSet resultSet = statement.executeQuery(selectQuery);
             while (resultSet.next()) {
                 int id = resultSet.getInt("id");
                 String name = resultSet.getString("name");
-                int courseId = resultSet.getInt("course_id");
-                int companyId = resultSet.getInt("company_id");
 
-                Course course = courseData.getCourseById(courseId);
-                Company company = companyData.getCompanyById(companyId);
-
-                Student student = new Student(id, name, course, company);
-                studentList.add(student);
+                Company company = new Company(id, name);
+                companyList.add(company);
             }
         } catch (SQLException e) {
             e.printStackTrace();
         }
     }
 
-    public void addStudent(String name, int courseId, int companyId) {
-        String insertQuery = "INSERT INTO student (name, course_id, company_id) VALUES (?, ?, ?)";
+    public void addCompany(String name) {
+        String insertQuery = "INSERT INTO company (name) VALUES (?)";
         try {
             PreparedStatement statement = databaseManager.getConnection().prepareStatement(insertQuery);
             statement.setString(1, name);
-            statement.setInt(2, courseId);
-            statement.setInt(3, companyId);
             statement.executeUpdate();
 
             int lastInsertedId = getLastInsertedId();
-            Course course = courseData.getCourseById(courseId);
-            Company company = companyData.getCompanyById(companyId);
-            Student newStudent = new Student(lastInsertedId, name, course, company);
-            studentList.add(newStudent);
+            Company newCompany = new Company(lastInsertedId, name);
+            companyList.add(newCompany);
             clearFields();
         } catch (SQLException e) {
             e.printStackTrace();
         }
     }
 
-    public void removeStudent(Student student) {
-        if (student != null) {
-            String deleteQuery = "DELETE FROM student WHERE id = ?";
+    public void removeCompany(Company company) {
+        if (company != null) {
+            String deleteQuery = "DELETE FROM company WHERE id = ?";
             try {
                 PreparedStatement statement = databaseManager.getConnection().prepareStatement(deleteQuery);
-                statement.setInt(1, student.getId());
+                statement.setInt(1, company.getId());
                 statement.executeUpdate();
-                studentList.remove(student);
+                companyList.remove(company);
             } catch (SQLException e) {
                 e.printStackTrace();
             }
         }
+    }
+
+    public Company getCompanyById(int id) {
+        for (Company company : companyList) {
+            if (company.getId() == id) {
+                return company;
+            }
+        }
+        return null; // Company with the specified ID not found
+    }
+
+    public Company getCompanyByName(String name) {
+        for (Company company : companyList) {
+            if (company.getName().equals(name)) {
+                return company;
+            }
+        }
+        return null; // Company with the specified name not found
     }
 
     private int getLastInsertedId() throws SQLException {
@@ -91,11 +96,9 @@ public class StudentData {
     }
 
     private void clearFields() {
-        // Clear text fields after adding a student
+        // Clear text fields after adding a company
         // You can also update the GUI with a notification or feedback to the user
         // indicating that the operation was successful
         // nameField.clear();
-        // courseIdField.clear();
-        // companyIdField.clear();
     }
 }

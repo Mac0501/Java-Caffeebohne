@@ -1,10 +1,10 @@
 CREATE TABLE IF NOT EXISTS `bambus`.`room` (
-  `id` INT NOT NULL,
+  `id` INT NOT NULL AUTO_INCREMENT,
   `name` VARCHAR(255) NULL,
   PRIMARY KEY (`id`))
 ENGINE = InnoDB;
 CREATE TABLE IF NOT EXISTS `bambus`.`course` (
-  `id` INT NOT NULL,
+  `id` INT NOT NULL AUTO_INCREMENT,
   `name` VARCHAR(255) NULL,
   `room_id` INT NOT NULL,
   PRIMARY KEY (`id`, `room_id`),
@@ -16,14 +16,14 @@ CREATE TABLE IF NOT EXISTS `bambus`.`course` (
     ON UPDATE NO ACTION)
 ENGINE = InnoDB;
 CREATE TABLE IF NOT EXISTS `bambus`.`company` (
-  `id` INT NOT NULL,
+  `id` INT NOT NULL AUTO_INCREMENT,
   `name` VARCHAR(255) NULL,
   PRIMARY KEY (`id`))
 ENGINE = InnoDB;
 CREATE TABLE IF NOT EXISTS `bambus`.`student` (
-  `id` INT NOT NULL,
+  `id` INT NOT NULL AUTO_INCREMENT,
   `name` VARCHAR(255) NULL,
-  `sirname` VARCHAR(255) NULL,
+  `surname` VARCHAR(255) NULL,
   `javaskills` INT NULL,
   `course_id` INT NOT NULL,
   `Company_id` INT NOT NULL,

@@ -38,4 +38,6 @@ public class Student {
     public ObjectProperty<Company> companyProperty() {
         return company;
     }
+
+
 }
