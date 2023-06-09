@@ -28,11 +28,19 @@ public class Course {
         return room.get();
     }
 
+    public String getRoomName() {
+        return room.getName();
+    }
+
     public ObjectProperty<Room> roomProperty() {
         return room;
     }
 
     public StringProperty nameProperty() {
         return new SimpleStringProperty(name);
+    }
+    @Override
+    public String toString() {
+        return name;
     }
 }

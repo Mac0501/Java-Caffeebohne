@@ -23,4 +23,8 @@ public class Room {
     public StringProperty nameProperty() {
         return new SimpleStringProperty(name);
     }
-}
+
+    @Override
+    public String toString() {
+        return name;
+    }}

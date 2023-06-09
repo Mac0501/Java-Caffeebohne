@@ -94,7 +94,14 @@ public class CompanyData {
         }
         return -1;
     }
-
+    public int getCompanyIdByName(String companyName) {
+        for (Company company : companyList) {
+            if (company.getName().equals(companyName)) {
+                return company.getId();
+            }
+        }
+        return -1; // Return -1 if the company with the specified name is not found
+    }
     private void clearFields() {
         // Clear text fields after adding a company
         // You can also update the GUI with a notification or feedback to the user

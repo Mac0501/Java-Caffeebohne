@@ -93,23 +93,15 @@ public class CourseData {
         return null;
     }
 
-    public Room getRoomById(int roomId) {
+    public int getCourseIdByName(String courseName) {
         for (Course course : courseList) {
-            if (course.getRoom().getId() == roomId) {
-                return course.getRoom();
+            if (course.getName().equals(courseName)) {
+                return course.getId();
             }
         }
-        return null;
+        return -1; // Return -1 if the course with the specified name is not found
     }
 
-    public Room getRoomByName(String roomName) {
-        for (Course course : courseList) {
-            if (course.getRoom().getName().equals(roomName)) {
-                return course.getRoom();
-            }
-        }
-        return null;
-    }
 
     private int getLastInsertedId() throws SQLException {
         Statement statement = databaseManager.getConnection().createStatement();
@@ -118,5 +110,9 @@ public class CourseData {
             return resultSet.getInt(1);
         }
         return -1;
+    }
+
+    public ObservableList<Room> getRoomList() {
+        return roomData.getRoomList();
     }
 }

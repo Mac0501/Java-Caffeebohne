@@ -33,13 +33,14 @@ public class StudentData {
             while (resultSet.next()) {
                 int id = resultSet.getInt("id");
                 String name = resultSet.getString("name");
+                String surname = resultSet.getString("surname");
                 int courseId = resultSet.getInt("course_id");
                 int companyId = resultSet.getInt("company_id");
 
                 Course course = courseData.getCourseById(courseId);
                 Company company = companyData.getCompanyById(companyId);
 
-                Student student = new Student(id, name, course, company);
+                Student student = new Student(id, name, surname, course, company);
                 studentList.add(student);
             }
         } catch (SQLException e) {
@@ -47,19 +48,20 @@ public class StudentData {
         }
     }
 
-    public void addStudent(String name, int courseId, int companyId) {
-        String insertQuery = "INSERT INTO student (name, course_id, company_id) VALUES (?, ?, ?)";
+    public void addStudent(String name, String surname, int courseId, int companyId) {
+        String insertQuery = "INSERT INTO student (name, surname, course_id, company_id) VALUES (?, ?, ?,?)";
         try {
             PreparedStatement statement = databaseManager.getConnection().prepareStatement(insertQuery);
             statement.setString(1, name);
-            statement.setInt(2, courseId);
-            statement.setInt(3, companyId);
+            statement.setString(2, surname);
+            statement.setInt(3, courseId);
+            statement.setInt(4, companyId);
             statement.executeUpdate();
 
             int lastInsertedId = getLastInsertedId();
             Course course = courseData.getCourseById(courseId);
             Company company = companyData.getCompanyById(companyId);
-            Student newStudent = new Student(lastInsertedId, name, course, company);
+            Student newStudent = new Student(lastInsertedId, name, surname, course, company);
             studentList.add(newStudent);
             clearFields();
         } catch (SQLException e) {
