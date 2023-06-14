@@ -3,7 +3,8 @@ package com.example.baum;
 
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-
+import javafx.scene.control.Alert;
+import javafx.scene.control.Alert.AlertType;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -63,14 +64,20 @@ public class CourseData {
 
     public void removeCourse(Course course) {
         if (course != null) {
-            String deleteQuery = "DELETE FROM course WHERE id = ?";
             try {
+                String deleteQuery = "DELETE FROM course WHERE id = ?";
                 PreparedStatement statement = databaseManager.getConnection().prepareStatement(deleteQuery);
                 statement.setInt(1, course.getId());
                 statement.executeUpdate();
                 courseList.remove(course);
             } catch (SQLException e) {
-                e.printStackTrace();
+                // Display an error alert
+                Alert alert = new Alert(AlertType.ERROR);
+                alert.setTitle("Error: Delete Course");
+                alert.setHeaderText("Failed to delete the course.");
+                alert.setContentText("The course has associated students.");
+
+                alert.showAndWait();
             }
         }
     }
@@ -112,7 +119,32 @@ public class CourseData {
         return -1;
     }
 
+
     public ObservableList<Room> getRoomList() {
         return roomData.getRoomList();
     }
+
+    public ObservableList<Course> searchCoursesByName(String searchTerm) {
+        ObservableList<Course> searchResults = FXCollections.observableArrayList();
+        String searchQuery = "SELECT * FROM course WHERE LOWER(name) LIKE ?";
+        try {
+            PreparedStatement statement = databaseManager.getConnection().prepareStatement(searchQuery);
+            statement.setString(1, "%" + searchTerm.toLowerCase() + "%");
+            ResultSet resultSet = statement.executeQuery();
+            while (resultSet.next()) {
+                int id = resultSet.getInt("id");
+                String name = resultSet.getString("name");
+                int roomId = resultSet.getInt("room_id");
+
+                Room room = roomData.getRoomById(roomId);
+
+                Course course = new Course(id, name, room);
+                searchResults.add(course);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return searchResults;
+    }
+
 }

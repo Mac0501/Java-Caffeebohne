@@ -7,6 +7,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.stream.Collectors;
 
 public class StudentData {
     private final ObservableList<Student> studentList;
@@ -34,13 +35,14 @@ public class StudentData {
                 int id = resultSet.getInt("id");
                 String name = resultSet.getString("name");
                 String surname = resultSet.getString("surname");
+                int javaskills = resultSet.getInt("javaskills");
                 int courseId = resultSet.getInt("course_id");
                 int companyId = resultSet.getInt("company_id");
 
                 Course course = courseData.getCourseById(courseId);
                 Company company = companyData.getCompanyById(companyId);
 
-                Student student = new Student(id, name, surname, course, company);
+                Student student = new Student(id, name, surname, javaskills, course, company);
                 studentList.add(student);
             }
         } catch (SQLException e) {
@@ -48,20 +50,21 @@ public class StudentData {
         }
     }
 
-    public void addStudent(String name, String surname, int courseId, int companyId) {
-        String insertQuery = "INSERT INTO student (name, surname, course_id, company_id) VALUES (?, ?, ?,?)";
+    public void addStudent(String name, String surname, int javaskills, int courseId, int companyId) {
+        String insertQuery = "INSERT INTO student (name, surname, javaskills, course_id, company_id) VALUES (?, ?, ?, ?, ?)";
         try {
             PreparedStatement statement = databaseManager.getConnection().prepareStatement(insertQuery);
             statement.setString(1, name);
             statement.setString(2, surname);
-            statement.setInt(3, courseId);
-            statement.setInt(4, companyId);
+            statement.setInt(3, javaskills);
+            statement.setInt(4, courseId);
+            statement.setInt(5, companyId);
             statement.executeUpdate();
 
             int lastInsertedId = getLastInsertedId();
             Course course = courseData.getCourseById(courseId);
             Company company = companyData.getCompanyById(companyId);
-            Student newStudent = new Student(lastInsertedId, name, surname, course, company);
+            Student newStudent = new Student(lastInsertedId, name, surname, javaskills, course, company);
             studentList.add(newStudent);
             clearFields();
         } catch (SQLException e) {
@@ -81,6 +84,17 @@ public class StudentData {
                 e.printStackTrace();
             }
         }
+    }
+
+    public ObservableList<Student> searchStudentsByName(String name) {
+        String searchTerm = name.toLowerCase();
+        return FXCollections.observableArrayList(
+                studentList.stream()
+                        .filter(student ->
+                                student.getName().toLowerCase().contains(searchTerm) ||
+                                        student.getSurname().toLowerCase().contains(searchTerm))
+                        .collect(Collectors.toList())
+        );
     }
 
     private int getLastInsertedId() throws SQLException {

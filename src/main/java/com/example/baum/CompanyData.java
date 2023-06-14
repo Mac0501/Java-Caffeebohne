@@ -2,7 +2,8 @@ package com.example.baum;
 
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-
+import javafx.scene.control.Alert;
+import javafx.scene.control.Alert.AlertType;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -56,17 +57,24 @@ public class CompanyData {
 
     public void removeCompany(Company company) {
         if (company != null) {
-            String deleteQuery = "DELETE FROM company WHERE id = ?";
             try {
+                String deleteQuery = "DELETE FROM company WHERE id = ?";
                 PreparedStatement statement = databaseManager.getConnection().prepareStatement(deleteQuery);
                 statement.setInt(1, company.getId());
                 statement.executeUpdate();
                 companyList.remove(company);
             } catch (SQLException e) {
-                e.printStackTrace();
+                // Display an error alert
+                Alert alert = new Alert(AlertType.ERROR);
+                alert.setTitle("Error: Delete Company");
+                alert.setHeaderText("Failed to delete the company.");
+                alert.setContentText("The company has associated students.");
+
+                alert.showAndWait();
             }
         }
     }
+
 
     public Company getCompanyById(int id) {
         for (Company company : companyList) {
@@ -108,4 +116,25 @@ public class CompanyData {
         // indicating that the operation was successful
         // nameField.clear();
     }
+
+    public ObservableList<Company> searchCompaniesByName(String searchTerm) {
+        ObservableList<Company> searchResults = FXCollections.observableArrayList();
+        String searchQuery = "SELECT * FROM company WHERE LOWER(name) LIKE ?";
+        try {
+            PreparedStatement statement = databaseManager.getConnection().prepareStatement(searchQuery);
+            statement.setString(1, "%" + searchTerm.toLowerCase() + "%");
+            ResultSet resultSet = statement.executeQuery();
+            while (resultSet.next()) {
+                int id = resultSet.getInt("id");
+                String name = resultSet.getString("name");
+
+                Company company = new Company(id, name);
+                searchResults.add(company);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return searchResults;
+    }
+
 }

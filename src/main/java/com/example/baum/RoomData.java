@@ -2,7 +2,8 @@ package com.example.baum;
 
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-
+import javafx.scene.control.Alert;
+import javafx.scene.control.Alert.AlertType;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -73,14 +74,20 @@ public class RoomData {
 
     public void removeRoom(Room room) {
         if (room != null) {
-            String deleteQuery = "DELETE FROM room WHERE id = ?";
             try {
+                String deleteQuery = "DELETE FROM room WHERE id = ?";
                 PreparedStatement statement = databaseManager.getConnection().prepareStatement(deleteQuery);
                 statement.setInt(1, room.getId());
                 statement.executeUpdate();
                 roomList.remove(room);
             } catch (SQLException e) {
-                e.printStackTrace();
+                // Display an error alert
+                Alert alert = new Alert(AlertType.ERROR);
+                alert.setTitle("Error: Delete Room");
+                alert.setHeaderText("Failed to delete the room.");
+                alert.setContentText("The room has associated courses.");
+
+                alert.showAndWait();
             }
         }
     }
@@ -93,4 +100,25 @@ public class RoomData {
         }
         return -1;
     }
+
+    public ObservableList<Room> searchRoomsByName(String searchTerm) {
+        ObservableList<Room> searchResults = FXCollections.observableArrayList();
+        String searchQuery = "SELECT * FROM room WHERE LOWER(name) LIKE ?";
+        try {
+            PreparedStatement statement = databaseManager.getConnection().prepareStatement(searchQuery);
+            statement.setString(1, "%" + searchTerm.toLowerCase() + "%");
+            ResultSet resultSet = statement.executeQuery();
+            while (resultSet.next()) {
+                int id = resultSet.getInt("id");
+                String name = resultSet.getString("name");
+
+                Room room = new Room(id, name);
+                searchResults.add(room);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return searchResults;
+    }
+
 }
