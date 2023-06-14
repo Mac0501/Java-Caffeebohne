@@ -9,19 +9,35 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 
+/**
+ * The RoomData class manages the data and operations related to rooms.
+ */
 public class RoomData {
     private final ObservableList<Room> roomList;
     private final DatabaseManager databaseManager;
 
+    /**
+     * Constructs a RoomData object with the specified database manager.
+     *
+     * @param databaseManager The database manager.
+     */
     public RoomData(DatabaseManager databaseManager) {
         this.databaseManager = databaseManager;
         roomList = FXCollections.observableArrayList();
     }
 
+    /**
+     * Returns the list of rooms.
+     *
+     * @return The list of rooms.
+     */
     public ObservableList<Room> getRoomList() {
         return roomList;
     }
 
+    /**
+     * Fetches the rooms from the database and populates the room list.
+     */
     public void fetchRoomsFromDatabase() {
         String selectQuery = "SELECT * FROM room";
         try {
@@ -39,6 +55,12 @@ public class RoomData {
         }
     }
 
+    /**
+     * Retrieves a room by its ID.
+     *
+     * @param roomId The ID of the room.
+     * @return The room with the specified ID, or null if not found.
+     */
     public Room getRoomById(int roomId) {
         for (Room room : roomList) {
             if (room.getId() == roomId) {
@@ -48,6 +70,12 @@ public class RoomData {
         return null;
     }
 
+    /**
+     * Retrieves a room by its name.
+     *
+     * @param roomName The name of the room.
+     * @return The room with the specified name, or null if not found.
+     */
     public Room getRoomByName(String roomName) {
         for (Room room : roomList) {
             if (room.getName().equals(roomName)) {
@@ -57,6 +85,11 @@ public class RoomData {
         return null;
     }
 
+    /**
+     * Adds a new room with the specified name to the database and the room list.
+     *
+     * @param name The name of the room.
+     */
     public void addRoom(String name) {
         String insertQuery = "INSERT INTO room (name) VALUES (?)";
         try {
@@ -72,6 +105,11 @@ public class RoomData {
         }
     }
 
+    /**
+     * Removes a room from the database and the room list.
+     *
+     * @param room The room to remove.
+     */
     public void removeRoom(Room room) {
         if (room != null) {
             try {
@@ -92,6 +130,12 @@ public class RoomData {
         }
     }
 
+    /**
+     * Retrieves the ID of the last inserted room.
+     *
+     * @return The ID of the last inserted room, or -1 if not found.
+     * @throws SQLException If an SQL error occurs.
+     */
     private int getLastInsertedId() throws SQLException {
         Statement statement = databaseManager.getConnection().createStatement();
         ResultSet resultSet = statement.executeQuery("SELECT LAST_INSERT_ID()");
@@ -101,6 +145,12 @@ public class RoomData {
         return -1;
     }
 
+    /**
+     * Searches for rooms with names matching the specified search term.
+     *
+     * @param searchTerm The search term to match.
+     * @return The list of rooms that match the search term.
+     */
     public ObservableList<Room> searchRoomsByName(String searchTerm) {
         ObservableList<Room> searchResults = FXCollections.observableArrayList();
         String searchQuery = "SELECT * FROM room WHERE LOWER(name) LIKE ?";
@@ -120,5 +170,4 @@ public class RoomData {
         }
         return searchResults;
     }
-
 }
