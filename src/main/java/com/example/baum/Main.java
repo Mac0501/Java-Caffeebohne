@@ -7,9 +7,10 @@ import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.*;
 import javafx.stage.Stage;
-import javafx.util.StringConverter;
 import javafx.geometry.Pos;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 
 /**
@@ -141,7 +142,14 @@ public class Main extends Application {
         TableColumn<Student, Course> courseColumn = createCourseColumn();
         TableColumn<Student, Company> companyColumn = createCompanyColumn();
 
-        table.getColumns().addAll(nameColumn, surnameColumn, courseColumn, companyColumn, javaSkillsColumn);
+        List<TableColumn<Student, ?>> columns = new ArrayList<>();
+        columns.add(nameColumn);
+        columns.add(surnameColumn);
+        columns.add(courseColumn);
+        columns.add(companyColumn);
+        columns.add(javaSkillsColumn);
+
+        table.getColumns().addAll(columns);
 
         return table;
     }
@@ -948,17 +956,6 @@ public class Main extends Application {
         errorLabel.setText("");
         errorLabel.setVisible(false);
         errorLabel.getStyleClass().remove("error-label");
-    }
-
-    private void showErrorMessage(String message) {
-        Alert alert = new Alert(Alert.AlertType.WARNING);
-        alert.setTitle("Warning");
-        alert.setHeaderText(null);
-        alert.setContentText(message);
-
-        // Apply a custom style to the dialog
-
-        alert.showAndWait();
     }
 
     public static void main(String[] args) {
