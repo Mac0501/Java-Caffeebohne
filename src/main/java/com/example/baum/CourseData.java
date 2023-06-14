@@ -18,10 +18,13 @@ public class CourseData {
     private final RoomData roomData;
 
     /**
-     * Constructs a new CourseData object with the specified DatabaseManager and RoomData.
+     * Constructs a new CourseData object with the specified DatabaseManager and
+     * RoomData.
      *
-     * @param databaseManager The DatabaseManager object used for database operations.
-     * @param roomData        The RoomData object used for accessing room information.
+     * @param databaseManager The DatabaseManager object used for database
+     *                        operations.
+     * @param roomData        The RoomData object used for accessing room
+     *                        information.
      */
     public CourseData(DatabaseManager databaseManager, RoomData roomData) {
         this.databaseManager = databaseManager;

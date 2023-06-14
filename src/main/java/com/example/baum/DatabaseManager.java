@@ -7,7 +7,8 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 
 /**
- * The DatabaseManager class handles the connection to the database and executes SQL queries.
+ * The DatabaseManager class handles the connection to the database and executes
+ * SQL queries.
  */
 public class DatabaseManager {
     private Connection connection;

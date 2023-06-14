@@ -90,11 +90,9 @@ public class StudentData {
         String searchTerm = name.toLowerCase();
         return FXCollections.observableArrayList(
                 studentList.stream()
-                        .filter(student ->
-                                student.getName().toLowerCase().contains(searchTerm) ||
-                                        student.getSurname().toLowerCase().contains(searchTerm))
-                        .collect(Collectors.toList())
-        );
+                        .filter(student -> student.getName().toLowerCase().contains(searchTerm) ||
+                                student.getSurname().toLowerCase().contains(searchTerm))
+                        .collect(Collectors.toList()));
     }
 
     private int getLastInsertedId() throws SQLException {

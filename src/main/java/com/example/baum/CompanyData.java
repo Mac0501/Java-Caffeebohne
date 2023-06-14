@@ -11,7 +11,8 @@ import java.sql.SQLException;
 import java.sql.Statement;
 
 /**
- * The CompanyData class manages the retrieval, addition, and removal of companies from the database.
+ * The CompanyData class manages the retrieval, addition, and removal of
+ * companies from the database.
  */
 public class CompanyData {
     private final ObservableList<Company> companyList;

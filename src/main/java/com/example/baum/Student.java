@@ -4,7 +4,8 @@ import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 
 /**
- * The Student class represents a student with relevant information such as ID, name, surname, Java skills,
+ * The Student class represents a student with relevant information such as ID,
+ * name, surname, Java skills,
  * enrolled course, and associated company.
  */
 public class Student {
@@ -82,7 +83,8 @@ public class Student {
     /**
      * Returns the name of the enrolled course for the student.
      *
-     * @return The name of the enrolled course, or an empty string if no course is enrolled.
+     * @return The name of the enrolled course, or an empty string if no course is
+     *         enrolled.
      */
     public String getCourseName() {
         return course != null ? course.getName() : "";
@@ -91,7 +93,8 @@ public class Student {
     /**
      * Returns the name of the associated company for the student.
      *
-     * @return The name of the associated company, or an empty string if no company is associated.
+     * @return The name of the associated company, or an empty string if no company
+     *         is associated.
      */
     public String getCompanyName() {
         return company != null ? company.getName() : "";

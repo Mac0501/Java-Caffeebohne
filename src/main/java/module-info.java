@@ -7,10 +7,7 @@ module com.example.baum {
     requires transitive java.sql;
 
     opens com.example.baum to javafx.fxml;
+
     exports com.example.baum;
-
-
-
-
 
 }
