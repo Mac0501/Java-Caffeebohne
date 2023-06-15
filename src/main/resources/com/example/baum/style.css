@@ -1,6 +1,8 @@
 .root {
     -fx-font-family: "Segoe UI", Helvetica, Arial, sans-serif;
-    -fx-background-color: #ffffff;
+    -fx-background-color: #eceaea;
+    -fx-border-color: transparent;
+
 }
 
 .button {
@@ -42,6 +44,7 @@
 
 .table-view {
     -fx-background-color: #ffffff;
+    -fx-effect: dropshadow(three-pass-box, rgba(0, 0, 0, 0.2), 5, 0.0, 0, 1);
 }
 
 .table-view .column-header-background {

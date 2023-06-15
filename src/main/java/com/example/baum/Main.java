@@ -92,35 +92,41 @@ public class Main extends Application {
         Slider javaSkillsSlider = createJavaSkillsSlider();
         ComboBox<Course> courseComboBox = createCourseComboBox();
         ComboBox<Company> companyComboBox = createCompanyComboBox();
-        Button addButton = createAddButton(nameField, surnameField, javaSkillsSlider, courseComboBox, companyComboBox,
-                errorLabel);
+        Button addButton = createAddButton(nameField, surnameField, javaSkillsSlider, courseComboBox, companyComboBox, errorLabel);
         Button removeButton = createRemoveButton(table);
-        GridPane gridPane = createGridPane();
         HBox skillsBox = createSkillsBox(javaSkillsSlider);
 
-        gridPane.add(nameField, 0, 1);
-        gridPane.add(surnameField, 1, 1);
-        gridPane.add(courseComboBox, 0, 2, 1, 1);
-        gridPane.add(companyComboBox, 1, 2, 1, 1);
-        gridPane.add(skillsBox, 0, 3, 2, 1);
-        gridPane.add(addButton, 0, 4, 1, 1);
-        gridPane.add(removeButton, 1, 4, 1, 1);
-        gridPane.add(errorLabel, 0, 5, 2, 1);
-        gridPane.add(searchField, 0, 6, 2, 1);
-        gridPane.add(table, 0, 7, 2, 1);
+        GridPane addStudentGridPane = new GridPane();
+        addStudentGridPane.add(nameField, 0, 0);
+        addStudentGridPane.add(surnameField, 1, 0);
+        addStudentGridPane.add(courseComboBox, 0, 1);
+        addStudentGridPane.add(companyComboBox, 1, 1);
+        addStudentGridPane.add(skillsBox, 0, 2, 2, 1);
+        addStudentGridPane.add(addButton, 0, 3);
+        addStudentGridPane.add(removeButton, 1, 3);
+        addStudentGridPane.add(errorLabel, 0, 4, 2, 1);
+        addStudentGridPane.add(searchField, 0, 5, 2, 1);
 
-        GridPane.setHgrow(nameField, Priority.ALWAYS);
-        GridPane.setHgrow(surnameField, Priority.ALWAYS);
-        GridPane.setHgrow(courseComboBox, Priority.ALWAYS);
-        GridPane.setHgrow(skillsBox, Priority.ALWAYS);
-        GridPane.setHgrow(companyComboBox, Priority.ALWAYS);
-        GridPane.setHgrow(addButton, Priority.ALWAYS);
-        GridPane.setHgrow(removeButton, Priority.ALWAYS);
+        GridPane mainGridPane = new GridPane();
+        mainGridPane.add(table, 0, 0);
+        mainGridPane.add(addStudentGridPane, 1, 0);
+
+        ColumnConstraints col1 = new ColumnConstraints();
+        col1.setPercentWidth(50);
+        ColumnConstraints col2 = new ColumnConstraints();
+        col2.setPercentWidth(50);
+        mainGridPane.getColumnConstraints().addAll(col1, col2);
+
         GridPane.setHgrow(table, Priority.ALWAYS);
         GridPane.setVgrow(table, Priority.ALWAYS);
 
-        return gridPane;
+        GridPane.setHgrow(addStudentGridPane, Priority.ALWAYS);
+        GridPane.setVgrow(addStudentGridPane, Priority.ALWAYS);
+
+        return mainGridPane;
     }
+
+
 
     /**
      * Creates the TableView for displaying students.
