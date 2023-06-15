@@ -16,7 +16,8 @@ import com.example.baum.course.Course;
 import com.example.baum.course.CourseData;
 
 /**
- * A pane for managing students.
+ * A custom GridPane that represents the Student pane in the application.
+ * It allows adding, removing, and searching for student.
  */
 public class StudentPane extends GridPane {
 
@@ -344,14 +345,23 @@ public class StudentPane extends GridPane {
         return skillsBox;
     }
 
-    // Helper method to display validation error message
+    /**
+     * Displays a validation error message in the error label.
+     *
+     * @param errorLabel The Label for displaying validation errors.
+     * @param message    The error message to display.
+     */
     private void displayValidationError(Label errorLabel, String message) {
         errorLabel.setText(message);
         errorLabel.getStyleClass().add("error-label");
         errorLabel.setVisible(true);
     }
 
-    // Helper method to clear validation error message
+    /**
+     * Clears the validation error message from the error label.
+     *
+     * @param errorLabel The Label for displaying validation errors.
+     */
     private void clearValidationError(Label errorLabel) {
         errorLabel.setText("");
         errorLabel.setVisible(false);

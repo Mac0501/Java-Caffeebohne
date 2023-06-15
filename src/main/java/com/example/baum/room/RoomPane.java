@@ -7,14 +7,26 @@ import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Priority;
 
+/**
+ * A custom GridPane that represents the Room pane in the application.
+ * It allows adding, removing, and searching for rooms.
+ */
 public class RoomPane extends GridPane {
     private RoomData roomData;
 
+    /**
+     * Constructs a RoomPane with the specified RoomData.
+     *
+     * @param roomData The RoomData object to be used for managing rooms.
+     */
     public RoomPane(RoomData roomData) {
         this.roomData = roomData;
         initialize();
     }
 
+    /**
+     * Initializes the RoomPane by creating and configuring its components.
+     */
     private void initialize() {
         TableView<Room> table = createRoomTableView();
         TextField searchField = createRoomSearchField(table);
@@ -29,6 +41,11 @@ public class RoomPane extends GridPane {
         this.getChildren().add(gridPane);
     }
 
+    /**
+     * Creates and configures the TableView for displaying the list of rooms.
+     *
+     * @return The configured TableView object.
+     */
     private TableView<Room> createRoomTableView() {
         TableView<Room> table = new TableView<>();
         table.setItems(roomData.getRoomList());
@@ -42,6 +59,12 @@ public class RoomPane extends GridPane {
         return table;
     }
 
+    /**
+     * Creates and configures the TextField for searching rooms.
+     *
+     * @param table The TableView to be filtered based on the search term.
+     * @return The configured TextField object.
+     */
     private TextField createRoomSearchField(TableView<Room> table) {
         TextField searchField = new TextField();
         searchField.setPromptText("Search Rooms...");
@@ -53,6 +76,11 @@ public class RoomPane extends GridPane {
         return searchField;
     }
 
+    /**
+     * Creates and configures the TextField for entering the room name.
+     *
+     * @return The configured TextField object.
+     */
     private TextField createRoomNameField() {
         TextField nameField = new TextField();
         nameField.setPromptText("Room Name");
@@ -60,6 +88,13 @@ public class RoomPane extends GridPane {
         return nameField;
     }
 
+    /**
+     * Creates and configures the button for adding a room.
+     *
+     * @param nameField  The TextField for entering the room name.
+     * @param errorLabel The Label for displaying validation errors.
+     * @return The configured Button object.
+     */
     private Button createAddRoomButton(TextField nameField, Label errorLabel) {
         Button addButton = new Button("Add Room");
         addButton.setMaxWidth(Double.MAX_VALUE);
@@ -78,6 +113,12 @@ public class RoomPane extends GridPane {
         return addButton;
     }
 
+    /**
+     * Creates and configures the button for removing a room.
+     *
+     * @param table The TableView containing the list of rooms.
+     * @return The configured Button object.
+     */
     private Button createRemoveRoomButton(TableView<Room> table) {
         Button removeButton = new Button("Remove Room");
         removeButton.setMaxWidth(Double.MAX_VALUE);
@@ -93,6 +134,17 @@ public class RoomPane extends GridPane {
         return removeButton;
     }
 
+    /**
+     * Creates and configures the main GridPane for arranging the components.
+     *
+     * @param nameField    The TextField for entering the room name.
+     * @param addButton    The Button for adding a room.
+     * @param removeButton The Button for removing a room.
+     * @param errorLabel   The Label for displaying validation errors.
+     * @param searchField  The TextField for searching rooms.
+     * @param table        The TableView for displaying the list of rooms.
+     * @return The configured GridPane object.
+     */
     private GridPane createRoomGridPane(TextField nameField, Button addButton,
                                         Button removeButton, Label errorLabel,
                                         TextField searchField, TableView<Room> table) {
@@ -125,6 +177,11 @@ public class RoomPane extends GridPane {
         return gridPane;
     }
 
+    /**
+     * Creates and configures the label for displaying validation errors.
+     *
+     * @return The configured Label object.
+     */
     private Label createRoomErrorLabel() {
         Label errorLabel = new Label();
         errorLabel.getStyleClass().add("error-label");
@@ -132,18 +189,26 @@ public class RoomPane extends GridPane {
         return errorLabel;
     }
 
-    // Helper method to display validation error message
+    /**
+     * Displays a validation error message in the error label.
+     *
+     * @param errorLabel The Label for displaying validation errors.
+     * @param message    The error message to display.
+     */
     private void displayValidationError(Label errorLabel, String message) {
         errorLabel.setText(message);
         errorLabel.getStyleClass().add("error-label");
         errorLabel.setVisible(true);
     }
 
-    // Helper method to clear validation error message
+    /**
+     * Clears the validation error message from the error label.
+     *
+     * @param errorLabel The Label for displaying validation errors.
+     */
     private void clearValidationError(Label errorLabel) {
         errorLabel.setText("");
         errorLabel.setVisible(false);
         errorLabel.getStyleClass().remove("error-label");
     }
 }
-
