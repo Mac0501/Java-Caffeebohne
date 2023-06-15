@@ -10,16 +10,29 @@ import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Priority;
 
+/**
+ * The CoursePane class manages the appearance and functionality of the course pane.
+ * It provides a user interface for adding and removing courses, as well as searching for courses.
+ */
 public class CoursePane extends GridPane {
     private CourseData courseData;
     private RoomData roomData;
 
+    /**
+     * Constructs a CoursePane object with the specified CourseData and RoomData.
+     *
+     * @param courseData The CourseData object containing the course information.
+     * @param roomData   The RoomData object containing the room information.
+     */
     public CoursePane(CourseData courseData, RoomData roomData) {
         this.courseData = courseData;
         this.roomData = roomData;
         initialize();
     }
 
+    /**
+     * Initializes the course pane by creating and adding the necessary UI components.
+     */
     private void initialize() {
         TableView<Course> table = createCourseTableView();
         TextField searchField = createCourseSearchField(table);
@@ -35,6 +48,11 @@ public class CoursePane extends GridPane {
         this.getChildren().add(gridPane);
     }
 
+    /**
+     * Creates and configures the TableView for displaying the list of courses.
+     *
+     * @return The configured TableView object.
+     */
     private TableView<Course> createCourseTableView() {
         TableView<Course> table = new TableView<>();
         table.setItems(courseData.getCourseList());
@@ -52,6 +70,12 @@ public class CoursePane extends GridPane {
         return table;
     }
 
+    /**
+     * Creates and configures the search field for searching courses.
+     *
+     * @param table The TableView object to update with the search results.
+     * @return The configured TextField object.
+     */
     private TextField createCourseSearchField(TableView<Course> table) {
         TextField searchField = new TextField();
         searchField.setPromptText("Search Courses...");
@@ -63,6 +87,11 @@ public class CoursePane extends GridPane {
         return searchField;
     }
 
+    /**
+     * Creates and configures the text field for entering the course name.
+     *
+     * @return The configured TextField object.
+     */
     private TextField createCourseNameField() {
         TextField nameField = new TextField();
         nameField.setPromptText("Course Name");
@@ -70,6 +99,11 @@ public class CoursePane extends GridPane {
         return nameField;
     }
 
+    /**
+     * Creates and configures the combo box for selecting the room.
+     *
+     * @return The configured ComboBox object.
+     */
     private ComboBox<Room> createRoomComboBox() {
         ComboBox<Room> roomComboBox = new ComboBox<>(roomData.getRoomList());
         roomComboBox.setPromptText("Select Room");
@@ -102,6 +136,14 @@ public class CoursePane extends GridPane {
         return roomComboBox;
     }
 
+    /**
+     * Creates and configures the button for adding a course.
+     *
+     * @param nameField    The TextField for entering the course name.
+     * @param roomComboBox The ComboBox for selecting the room.
+     * @param errorLabel   The Label for displaying validation errors.
+     * @return The configured Button object.
+     */
     private Button createAddCourseButton(TextField nameField, ComboBox<Room> roomComboBox, Label errorLabel) {
         Button addButton = new Button("Add Course");
         addButton.setMaxWidth(Double.MAX_VALUE);
@@ -129,6 +171,12 @@ public class CoursePane extends GridPane {
         return addButton;
     }
 
+    /**
+     * Creates and configures the button for removing a course.
+     *
+     * @param table The TableView containing the list of courses.
+     * @return The configured Button object.
+     */
     private Button createRemoveCourseButton(TableView<Course> table) {
         Button removeButton = new Button("Remove Course");
         removeButton.setMaxWidth(Double.MAX_VALUE);
@@ -144,6 +192,18 @@ public class CoursePane extends GridPane {
         return removeButton;
     }
 
+    /**
+     * Creates and configures the main GridPane for the course pane.
+     *
+     * @param nameField      The TextField for entering the course name.
+     * @param roomComboBox   The ComboBox for selecting the room.
+     * @param addButton      The Button for adding a course.
+     * @param removeButton   The Button for removing a course.
+     * @param errorLabel     The Label for displaying validation errors.
+     * @param searchField    The TextField for searching courses.
+     * @param table          The TableView containing the list of courses.
+     * @return The configured GridPane object.
+     */
     private GridPane createCourseGridPane(TextField nameField, ComboBox<Room> roomComboBox, Button addButton,
                                           Button removeButton, Label errorLabel, TextField searchField, TableView<Course> table) {
         GridPane gridPane = new GridPane();
@@ -177,6 +237,11 @@ public class CoursePane extends GridPane {
         return gridPane;
     }
 
+    /**
+     * Creates and configures the label for displaying validation errors.
+     *
+     * @return The configured Label object.
+     */
     private Label createErrorLabel() {
         Label errorLabel = new Label();
         errorLabel.getStyleClass().add("error-label");
@@ -184,14 +249,23 @@ public class CoursePane extends GridPane {
         return errorLabel;
     }
 
-    // Helper method to display validation error message
+    /**
+     * Displays a validation error message in the error label.
+     *
+     * @param errorLabel The Label for displaying validation errors.
+     * @param message    The error message to display.
+     */
     private void displayValidationError(Label errorLabel, String message) {
         errorLabel.setText(message);
         errorLabel.getStyleClass().add("error-label");
         errorLabel.setVisible(true);
     }
 
-    // Helper method to clear validation error message
+    /**
+     * Clears the validation error message from the error label.
+     *
+     * @param errorLabel The Label for displaying validation errors.
+     */
     private void clearValidationError(Label errorLabel) {
         errorLabel.setText("");
         errorLabel.setVisible(false);
