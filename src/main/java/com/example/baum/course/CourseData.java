@@ -1,4 +1,4 @@
-package com.example.baum;
+package com.example.baum.course;
 
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -8,6 +8,10 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+
+import com.example.baum.DatabaseManager;
+import com.example.baum.room.RoomData;
+import com.example.baum.room.Room;
 
 /**
  * The CourseData class manages the data and operations related to courses.

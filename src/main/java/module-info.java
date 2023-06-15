@@ -7,7 +7,14 @@ module com.example.baum {
     requires transitive java.sql;
 
     opens com.example.baum to javafx.fxml;
+    opens com.example.baum.room to javafx.base;
+    opens com.example.baum.company to javafx.base;
+    opens com.example.baum.student to javafx.base;
+    opens com.example.baum.course to javafx.base;
 
     exports com.example.baum;
-
+    exports com.example.baum.room;
+    exports com.example.baum.company;
+    exports com.example.baum.student;
+    exports com.example.baum.course;
 }

@@ -1,4 +1,4 @@
-package com.example.baum;
+package com.example.baum.student;
 
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -8,6 +8,12 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.stream.Collectors;
+
+import com.example.baum.DatabaseManager;
+import com.example.baum.company.Company;
+import com.example.baum.company.CompanyData;
+import com.example.baum.course.Course;
+import com.example.baum.course.CourseData;
 
 public class StudentData {
     private final ObservableList<Student> studentList;

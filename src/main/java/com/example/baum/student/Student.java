@@ -1,7 +1,9 @@
-package com.example.baum;
+package com.example.baum.student;
 
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
+import com.example.baum.company.Company;
+import com.example.baum.course.Course;
 
 /**
  * The Student class represents a student with relevant information such as ID,

@@ -1,4 +1,4 @@
-package com.example.baum;
+package com.example.baum.room;
 
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;

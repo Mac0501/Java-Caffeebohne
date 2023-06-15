@@ -1,9 +1,10 @@
-package com.example.baum;
+package com.example.baum.course;
 
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.StringProperty;
 import javafx.beans.property.SimpleStringProperty;
+import com.example.baum.room.Room;
 
 /**
  * The Course class represents a course with its ID, name, and assigned room.

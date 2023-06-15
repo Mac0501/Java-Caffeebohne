@@ -1,4 +1,4 @@
-package com.example.baum;
+package com.example.baum.company;
 
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -9,6 +9,8 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+
+import com.example.baum.DatabaseManager;
 
 /**
  * The CompanyData class manages the retrieval, addition, and removal of

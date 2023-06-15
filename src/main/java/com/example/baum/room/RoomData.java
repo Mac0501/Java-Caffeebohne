@@ -1,4 +1,4 @@
-package com.example.baum;
+package com.example.baum.room;
 
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -8,6 +8,8 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+
+import com.example.baum.DatabaseManager;
 
 /**
  * The RoomData class manages the data and operations related to rooms.
