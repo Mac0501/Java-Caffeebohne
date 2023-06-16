@@ -12,11 +12,11 @@ import com.example.baum.course.Course;
  */
 public class Student {
     private final int id;
-    private final String name;
-    private final String surname;
-    private final int javaskills;
-    private final Course course;
-    private final Company company;
+    private String name;
+    private String surname;
+    private int javaskills;
+    private Course course;
+    private Company company;
 
     /**
      * Constructs a Student object with the specified parameters.
@@ -56,6 +56,15 @@ public class Student {
     }
 
     /**
+     * Sets the name of the student.
+     *
+     * @param name The name of the student.
+     */
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    /**
      * Returns the surname of the student.
      *
      * @return The surname of the student.
@@ -65,12 +74,30 @@ public class Student {
     }
 
     /**
+     * Sets the surname of the student.
+     *
+     * @param surname The surname of the student.
+     */
+    public void setSurname(String surname) {
+        this.surname = surname;
+    }
+
+    /**
      * Returns the Java skills level of the student.
      *
      * @return The Java skills level of the student.
      */
     public int getJavaskills() {
         return javaskills;
+    }
+
+    /**
+     * Sets the Java skills level of the student.
+     *
+     * @param javaskills The Java skills level of the student.
+     */
+    public void setJavaskills(int javaskills) {
+        this.javaskills = javaskills;
     }
 
     /**
@@ -93,6 +120,24 @@ public class Student {
     }
 
     /**
+     * Returns the enrolled course of the student.
+     *
+     * @return The enrolled course of the student.
+     */
+    public Course getCourse() {
+        return course;
+    }
+
+    /**
+     * Sets the enrolled course of the student.
+     *
+     * @param course The enrolled course of the student.
+     */
+    public void setCourse(Course course) {
+        this.course = course;
+    }
+
+    /**
      * Returns the name of the associated company for the student.
      *
      * @return The name of the associated company, or an empty string if no company
@@ -100,5 +145,23 @@ public class Student {
      */
     public String getCompanyName() {
         return company != null ? company.getName() : "";
+    }
+
+    /**
+     * Returns the associated company for the student.
+     *
+     * @return The associated company for the student.
+     */
+    public Company getCompany() {
+        return company;
+    }
+
+    /**
+     * Sets the associated company for the student.
+     *
+     * @param company The associated company for the student.
+     */
+    public void setCompany(Company company) {
+        this.company = company;
     }
 }

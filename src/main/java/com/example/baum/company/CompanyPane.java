@@ -7,46 +7,90 @@ import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Priority;
 
-
 /**
  * A custom GridPane that represents the Company pane in the application.
- * It allows adding, removing, and searching for company.
+ * It allows adding, removing, and searching for companies.
  */
 public class CompanyPane extends GridPane {
-    private CompanyData companyData;
+    private final CompanyData companyData;
+    private final TextField nameField;
+    private final Label errorLabel;
+    private final TableView<Company> companyTableView;
 
     /**
-     * Constructs a new instance of CompanyPane with the provided CompanyData object.
+     * Constructs a CompanyPane with the specified CompanyData.
      *
-     * @param companyData the CompanyData object to be associated with this CompanyPane
+     * @param companyData The CompanyData object to be used for managing companies.
      */
     public CompanyPane(CompanyData companyData) {
         this.companyData = companyData;
+        this.nameField = createCompanyNameField();
+        this.errorLabel = createCompanyErrorLabel();
+        this.companyTableView = createCompanyTableView();
+
         initialize();
     }
 
     /**
-     * Initializes the CompanyPane by creating and adding the necessary UI elements.
+     * Initializes the CompanyPane by creating and configuring its components.
      */
     private void initialize() {
-        TableView<Company> table = createCompanyTableView();
-        TextField searchField = createCompanySearchField(table);
-        TextField nameField = createCompanyNameField();
-        Label errorLabel = createErrorLabel();
-        Button addButton = createAddCompanyButton(nameField, errorLabel);
-        Button removeButton = createRemoveCompanyButton(table);
+        TextField searchField = createCompanySearchField();
+        Button addButton = createAddCompanyButton();
+        Button removeButton = createRemoveCompanyButton();
 
-        GridPane gridPane = createCompanyGridPane(nameField, addButton, removeButton,
-                errorLabel, searchField, table);
+        configureLayout(nameField, addButton, removeButton, errorLabel, searchField, companyTableView);
 
-        this.getChildren().add(gridPane);
+        this.setMaxSize(Double.MAX_VALUE, Double.MAX_VALUE);
+    }
+
+    // Model
+    /**
+     * Displays a validation error message in the error label.
+     *
+     * @param message The error message to display.
+     */
+    private void displayValidationError(String message) {
+        errorLabel.setText(message);
+        errorLabel.getStyleClass().add("error-label");
+        errorLabel.setVisible(true);
     }
 
     /**
-     * Creates and configures the TableView for displaying the list of companies.
-     *
-     * @return the configured TableView
+     * Clears the validation error message from the error label.
      */
+    private void clearValidationError() {
+        errorLabel.setText("");
+        errorLabel.setVisible(false);
+        errorLabel.getStyleClass().remove("error-label");
+    }
+
+    // View
+    private TextField createCompanySearchField() {
+        TextField searchField = new TextField();
+        searchField.setPromptText("Search Companies...");
+        searchField.textProperty().addListener((observable, oldValue, newValue) -> {
+            String searchTerm = newValue.trim().toLowerCase();
+            companyTableView.setItems(companyData.searchCompaniesByName(searchTerm));
+        });
+
+        return searchField;
+    }
+
+    private TextField createCompanyNameField() {
+        TextField nameField = new TextField();
+        nameField.setPromptText("Company Name");
+
+        return nameField;
+    }
+
+    private Label createCompanyErrorLabel() {
+        Label errorLabel = new Label();
+        errorLabel.getStyleClass().add("error-label");
+
+        return errorLabel;
+    }
+
     private TableView<Company> createCompanyTableView() {
         TableView<Company> table = new TableView<>();
         table.setItems(companyData.getCompanyList());
@@ -60,53 +104,17 @@ public class CompanyPane extends GridPane {
         return table;
     }
 
-    /**
-     * Creates and configures the TextField for searching companies by name.
-     *
-     * @param table the TableView to be filtered based on the search input
-     * @return the configured search TextField
-     */
-    private TextField createCompanySearchField(TableView<Company> table) {
-        TextField searchField = new TextField();
-        searchField.setPromptText("Search Companies...");
-        searchField.textProperty().addListener((observable, oldValue, newValue) -> {
-            String searchTerm = newValue.trim().toLowerCase();
-            table.setItems(companyData.searchCompaniesByName(searchTerm));
-        });
-
-        return searchField;
-    }
-
-    /**
-     * Creates and configures the TextField for entering a company name.
-     *
-     * @return the configured name TextField
-     */
-    private TextField createCompanyNameField() {
-        TextField nameField = new TextField();
-        nameField.setPromptText("Company Name");
-
-        return nameField;
-    }
-
-    /**
-     * Creates and configures the Button for adding a new company.
-     *
-     * @param nameField   the TextField containing the company name input
-     * @param errorLabel  the Label used to display error messages
-     * @return the configured add company Button
-     */
-    private Button createAddCompanyButton(TextField nameField, Label errorLabel) {
+    // Controller
+    private Button createAddCompanyButton() {
         Button addButton = new Button("Add Company");
         addButton.setMaxWidth(Double.MAX_VALUE);
         addButton.setOnAction(e -> {
             if (nameField.getText().isEmpty()) {
-                displayValidationError(errorLabel, "Please enter a company name.");
+                displayValidationError("Please enter a company name.");
                 return;
             }
 
-            clearValidationError(errorLabel);
-
+            clearValidationError();
             companyData.addCompany(nameField.getText());
             nameField.clear();
         });
@@ -114,17 +122,11 @@ public class CompanyPane extends GridPane {
         return addButton;
     }
 
-    /**
-     * Creates and configures the Button for removing a company.
-     *
-     * @param table the TableView containing the list of companies
-     * @return the configured remove company Button
-     */
-    private Button createRemoveCompanyButton(TableView<Company> table) {
+    private Button createRemoveCompanyButton() {
         Button removeButton = new Button("Remove Company");
         removeButton.setMaxWidth(Double.MAX_VALUE);
         removeButton.setOnAction(e -> {
-            Company selected = table.getSelectionModel().getSelectedItem();
+            Company selected = companyTableView.getSelectionModel().getSelectedItem();
             if (selected != null) {
                 companyData.removeCompany(selected);
             }
@@ -135,24 +137,13 @@ public class CompanyPane extends GridPane {
         return removeButton;
     }
 
-    /**
-     * Creates and configures the main GridPane layout for the CompanyPane.
-     *
-     * @param nameField     the TextField for entering a company name
-     * @param addButton     the Button for adding a new company
-     * @param removeButton  the Button for removing a company
-     * @param errorLabel    the Label used to display error messages
-     * @param searchField   the TextField for searching companies by name
-     * @param table         the TableView for displaying the list of companies
-     * @return the configured main GridPane
-     */
-    private GridPane createCompanyGridPane(TextField nameField, Button addButton,
-                                           Button removeButton, Label errorLabel,
-                                           TextField searchField, TableView<Company> table) {
-        GridPane gridPane = new GridPane();
-        gridPane.setHgap(10);
-        gridPane.setVgap(10);
-        gridPane.setPadding(new Insets(10));
+    // Layout configuration
+    private void configureLayout(TextField nameField, Button addButton,
+                                 Button removeButton, Label errorLabel,
+                                 TextField searchField, TableView<Company> table) {
+        this.setHgap(10);
+        this.setVgap(10);
+        this.setPadding(new Insets(10));
 
         ColumnConstraints col1 = new ColumnConstraints();
         col1.setPercentWidth(50);
@@ -160,56 +151,19 @@ public class CompanyPane extends GridPane {
         ColumnConstraints col2 = new ColumnConstraints();
         col2.setPercentWidth(50);
 
-        gridPane.getColumnConstraints().addAll(col1, col2);
+        this.getColumnConstraints().addAll(col1, col2);
 
-        gridPane.add(nameField, 0, 0);
-        gridPane.add(addButton, 0, 1, 1, 1);
-        gridPane.add(removeButton, 1, 1, 1, 1);
-        gridPane.add(errorLabel, 0, 2, 2, 1);
-        gridPane.add(searchField, 0, 3, 2, 1);
-        gridPane.add(table, 0, 4, 2, 1);
+        this.add(nameField, 0, 0);
+        this.add(addButton, 0, 1);
+        this.add(removeButton, 1, 1);
+        this.add(errorLabel, 0, 2, 2, 1);
+        this.add(searchField, 0, 3, 2, 1);
+        this.add(table, 0, 4, 2, 1);
 
         GridPane.setHgrow(nameField, Priority.ALWAYS);
         GridPane.setHgrow(addButton, Priority.ALWAYS);
         GridPane.setHgrow(removeButton, Priority.ALWAYS);
         GridPane.setHgrow(table, Priority.ALWAYS);
         GridPane.setVgrow(table, Priority.ALWAYS);
-
-        return gridPane;
-    }
-
-    /**
-     * Creates and configures the Label used to display error messages.
-     *
-     * @return the configured error Label
-     */
-    private Label createErrorLabel() {
-        Label errorLabel = new Label();
-        errorLabel.getStyleClass().add("error-label");
-
-        return errorLabel;
-    }
-
-    /**
-     * Displays a validation error message in the provided error Label.
-     *
-     * @param errorLabel  the Label used to display the error message
-     * @param message     the validation error message to be displayed
-     */
-    private void displayValidationError(Label errorLabel, String message) {
-        errorLabel.setText(message);
-        errorLabel.getStyleClass().add("error-label");
-        errorLabel.setVisible(true);
-    }
-
-    /**
-     * Clears the validation error message from the provided error Label.
-     *
-     * @param errorLabel  the Label used to display the error message
-     */
-    private void clearValidationError(Label errorLabel) {
-        errorLabel.setText("");
-        errorLabel.setVisible(false);
-        errorLabel.getStyleClass().remove("error-label");
     }
 }

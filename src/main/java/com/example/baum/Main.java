@@ -55,7 +55,8 @@ public class Main extends Application {
         companyTab.setClosable(false);
         roomTab.setClosable(false);
 
-        primaryStage.setScene(new Scene(tabPane, 800, 600));
+        Scene scene = new Scene(tabPane, 800, 600);
+        primaryStage.setScene(scene);
         primaryStage.getScene().getStylesheets()
                 .add(Objects.requireNonNull(getClass().getResource("/com/example/baum/style.css")).toExternalForm());
 
@@ -87,7 +88,9 @@ public class Main extends Application {
      * @return The created student pane.
      */
     private Pane createStudentPane() {
-        return new StudentPane(studentData, courseData, companyData);
+        StudentPane studentPane = new StudentPane(studentData, courseData, companyData);
+        studentPane.setMaxSize(Double.MAX_VALUE, Double.MAX_VALUE);
+        return studentPane;
     }
 
     /**
@@ -96,7 +99,9 @@ public class Main extends Application {
      * @return The created course pane.
      */
     private Pane createCoursePane() {
-        return new CoursePane(courseData, roomData);
+        CoursePane coursePane = new CoursePane(courseData, roomData);
+        coursePane.setMaxSize(Double.MAX_VALUE, Double.MAX_VALUE);
+        return coursePane;
     }
 
     /**
@@ -105,7 +110,9 @@ public class Main extends Application {
      * @return The created company pane.
      */
     private Pane createCompanyPane() {
-        return new CompanyPane(companyData);
+        CompanyPane companyPane = new CompanyPane(companyData);
+        companyPane.setMaxSize(Double.MAX_VALUE, Double.MAX_VALUE);
+        return companyPane;
     }
 
     /**
@@ -114,7 +121,9 @@ public class Main extends Application {
      * @return The created room pane.
      */
     private Pane createRoomPane() {
-        return new RoomPane(roomData);
+        RoomPane roomPane = new RoomPane(roomData);
+        roomPane.setMaxSize(Double.MAX_VALUE, Double.MAX_VALUE);
+        return roomPane;
     }
 
     public static void main(String[] args) {

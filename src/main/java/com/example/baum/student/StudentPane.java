@@ -1,5 +1,17 @@
 package com.example.baum.student;
 
+
+import com.example.baum.*;
+import com.example.baum.company.Company;
+import com.example.baum.company.CompanyData;
+import com.example.baum.course.Course;
+import com.example.baum.course.CourseData;
+import com.example.baum.student.Student;
+import com.example.baum.student.StudentData;
+import javafx.beans.property.SimpleStringProperty;
+import javafx.beans.property.StringProperty;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.*;
@@ -9,29 +21,28 @@ import javafx.scene.paint.Color;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
-import com.example.baum.company.Company;
-import com.example.baum.company.CompanyData;
-import com.example.baum.course.Course;
-import com.example.baum.course.CourseData;
-
-/**
- * A custom GridPane that represents the Student pane in the application.
- * It allows adding, removing, and searching for student.
- */
 public class StudentPane extends GridPane {
 
     private StudentData studentData;
     private CourseData courseData;
     private CompanyData companyData;
 
-    /**
-     * Creates a new instance of the StudentPane.
-     *
-     * @param studentData The data manager for students.
-     * @param courseData  The data manager for courses.
-     * @param companyData The data manager for companies.
-     */
+    private TableView<Student> table;
+    private TextField searchField;
+    private TextField nameField;
+    private TextField surnameField;
+    private Label errorLabel;
+    private Slider javaSkillsSlider;
+    private ComboBox<Course> courseComboBox;
+    private ComboBox<Company> companyComboBox;
+    private Button addButton;
+    private Button removeButton;
+    private Button editButton;
+
+    private Student selectedStudent;
+
     public StudentPane(StudentData studentData, CourseData courseData, CompanyData companyData) {
         this.studentData = studentData;
         this.courseData = courseData;
@@ -41,50 +52,87 @@ public class StudentPane extends GridPane {
         setHgap(10);
         setVgap(10);
 
-        TableView<Student> table = createStudentTable();
-        TextField searchField = createStudentSearchField(table);
-        TextField nameField = createStudentNameField();
-        TextField surnameField = createStudentSurnameField();
-        Label errorLabel = createErrorLabel();
-        Slider javaSkillsSlider = createStudentJavaSkillsSlider();
-        ComboBox<Course> courseComboBox = createStudentCourseComboBox();
-        ComboBox<Company> companyComboBox = createStudentCompanyComboBox();
-        Button addButton = createStudentAddButton(nameField, surnameField, javaSkillsSlider, courseComboBox, companyComboBox, errorLabel);
-        Button removeButton = createStudentRemoveButton(table);
-        HBox skillsBox = createStudentSkillsBox(javaSkillsSlider);
+        createComponents();
+        layoutComponents();
+        setupEventHandlers();
+    }
 
-        GridPane addStudentGridPane = new GridPane();
-        addStudentGridPane.add(nameField, 0, 0);
-        addStudentGridPane.add(surnameField, 1, 0);
-        addStudentGridPane.add(courseComboBox, 0, 1);
-        addStudentGridPane.add(companyComboBox, 1, 1);
-        addStudentGridPane.add(skillsBox, 0, 2, 2, 1);
-        addStudentGridPane.add(addButton, 0, 3);
-        addStudentGridPane.add(removeButton, 1, 3);
-        addStudentGridPane.add(errorLabel, 0, 4, 2, 1);
-        addStudentGridPane.add(searchField, 0, 5, 2, 1);
+    private void createComponents() {
+        table = createStudentTable();
+        searchField = createStudentSearchField(table);
+        nameField = createStudentNameField();
+        surnameField = createStudentSurnameField();
+        errorLabel = createErrorLabel();
+        javaSkillsSlider = createStudentJavaSkillsSlider();
+        courseComboBox = createStudentCourseComboBox();
+        companyComboBox = createStudentCompanyComboBox();
+        addButton = createStudentAddButton(nameField, surnameField, javaSkillsSlider, courseComboBox, companyComboBox, errorLabel);
+        removeButton = createStudentRemoveButton(table);
+        editButton = createStudentEditButton(table);
 
-        add(table, 0, 0);
-        add(addStudentGridPane, 1, 0);
+        selectedStudent = null;
+    }
 
-        ColumnConstraints col1 = new ColumnConstraints();
-        col1.setPercentWidth(50);
-        ColumnConstraints col2 = new ColumnConstraints();
-        col2.setPercentWidth(50);
-        getColumnConstraints().addAll(col1, col2);
-
+    private void layoutComponents() {
         GridPane.setHgrow(table, Priority.ALWAYS);
         GridPane.setVgrow(table, Priority.ALWAYS);
 
-        GridPane.setHgrow(addStudentGridPane, Priority.ALWAYS);
-        GridPane.setVgrow(addStudentGridPane, Priority.ALWAYS);
+        GridPane.setHgrow(addButton, Priority.ALWAYS);
+        GridPane.setVgrow(addButton, Priority.ALWAYS);
+
+        GridPane.setHgrow(removeButton, Priority.ALWAYS);
+        GridPane.setVgrow(removeButton, Priority.ALWAYS);
+
+        GridPane.setHgrow(editButton, Priority.ALWAYS);
+        GridPane.setVgrow(editButton, Priority.ALWAYS);
+
+        add(table, 0, 0, 1, 3);
+
+        VBox vBox = new VBox(10, searchField, nameField, surnameField, courseComboBox, companyComboBox, javaSkillsSlider, addButton, removeButton, editButton, errorLabel);
+        vBox.setAlignment(Pos.TOP_CENTER);
+        add(vBox, 1, 0);
+
+        ColumnConstraints col1 = new ColumnConstraints();
+        col1.setPercentWidth(70);
+        ColumnConstraints col2 = new ColumnConstraints();
+        col2.setPercentWidth(30);
+        getColumnConstraints().addAll(col1, col2);
     }
 
-    /**
-     * Creates the TableView for displaying students.
-     *
-     * @return The TableView for students.
-     */
+    private void setupEventHandlers() {
+        table.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
+            if (newValue != null) {
+                selectStudent(newValue);
+            } else {
+                deselectStudent();
+            }
+        });
+    }
+
+    private void selectStudent(Student student) {
+        selectedStudent = student;
+        nameField.setText(student.getName());
+        surnameField.setText(student.getSurname());
+        javaSkillsSlider.setValue(student.getJavaskills());
+        courseComboBox.getSelectionModel().select(student.getCourse());
+        companyComboBox.getSelectionModel().select(student.getCompany());
+        addButton.setDisable(true);
+        removeButton.setDisable(true);
+        editButton.setText("Save Changes");
+    }
+
+    private void deselectStudent() {
+        selectedStudent = null;
+        nameField.clear();
+        surnameField.clear();
+        javaSkillsSlider.setValue(0);
+        courseComboBox.getSelectionModel().clearSelection();
+        companyComboBox.getSelectionModel().clearSelection();
+        addButton.setDisable(false);
+        removeButton.setDisable(false);
+        editButton.setText("Edit Student");
+    }
+
     private TableView<Student> createStudentTable() {
         TableView<Student> table = new TableView<>();
         table.setItems(studentData.getStudentList());
@@ -112,11 +160,6 @@ public class StudentPane extends GridPane {
         return table;
     }
 
-    /**
-     * Creates the TableColumn for Java Skills.
-     *
-     * @return The TableColumn for Java Skills.
-     */
     private TableColumn<Student, Integer> createJavaSkillsColumn() {
         TableColumn<Student, Integer> javaSkillsColumn = new TableColumn<>("Java Skills");
         javaSkillsColumn.setCellValueFactory(new PropertyValueFactory<>("javaskills"));
@@ -139,11 +182,6 @@ public class StudentPane extends GridPane {
         return javaSkillsColumn;
     }
 
-    /**
-     * Creates the TableColumn for Course.
-     *
-     * @return The TableColumn for Course.
-     */
     private TableColumn<Student, Course> createCourseColumn() {
         TableColumn<Student, Course> courseColumn = new TableColumn<>("Course");
         courseColumn.setCellValueFactory(new PropertyValueFactory<>("courseName"));
@@ -151,11 +189,6 @@ public class StudentPane extends GridPane {
         return courseColumn;
     }
 
-    /**
-     * Creates the TableColumn for Company.
-     *
-     * @return The TableColumn for Company.
-     */
     private TableColumn<Student, Company> createCompanyColumn() {
         TableColumn<Student, Company> companyColumn = new TableColumn<>("Company");
         companyColumn.setCellValueFactory(new PropertyValueFactory<>("companyName"));
@@ -163,12 +196,6 @@ public class StudentPane extends GridPane {
         return companyColumn;
     }
 
-    /**
-     * Creates the TextField for searching students.
-     *
-     * @param table The TableView of students.
-     * @return The TextField for searching students.
-     */
     private TextField createStudentSearchField(TableView<Student> table) {
         TextField searchField = new TextField();
         searchField.setPromptText("Search Students...");
@@ -180,11 +207,6 @@ public class StudentPane extends GridPane {
         return searchField;
     }
 
-    /**
-     * Creates the TextField for entering the student's name.
-     *
-     * @return The TextField for the student's name.
-     */
     private TextField createStudentNameField() {
         TextField nameField = new TextField();
         nameField.setPromptText("Name");
@@ -192,11 +214,6 @@ public class StudentPane extends GridPane {
         return nameField;
     }
 
-    /**
-     * Creates the TextField for entering the student's surname.
-     *
-     * @return The TextField for the student's surname.
-     */
     private TextField createStudentSurnameField() {
         TextField surnameField = new TextField();
         surnameField.setPromptText("Surname");
@@ -204,11 +221,6 @@ public class StudentPane extends GridPane {
         return surnameField;
     }
 
-    /**
-     * Creates the Label for displaying validation errors.
-     *
-     * @return The Label for validation errors.
-     */
     private Label createErrorLabel() {
         Label errorLabel = new Label();
         errorLabel.getStyleClass().add("error-label");
@@ -217,11 +229,6 @@ public class StudentPane extends GridPane {
         return errorLabel;
     }
 
-    /**
-     * Creates the Slider for selecting the student's Java skills.
-     *
-     * @return The Slider for Java skills.
-     */
     private Slider createStudentJavaSkillsSlider() {
         Slider javaSkillsSlider = new Slider(0, 100, 0);
         javaSkillsSlider.setShowTickLabels(true);
@@ -233,11 +240,6 @@ public class StudentPane extends GridPane {
         return javaSkillsSlider;
     }
 
-    /**
-     * Creates the ComboBox for selecting the student's course.
-     *
-     * @return The ComboBox for selecting the course.
-     */
     private ComboBox<Course> createStudentCourseComboBox() {
         ComboBox<Course> courseComboBox = new ComboBox<>();
         courseComboBox.setItems(courseData.getCourseList());
@@ -246,11 +248,6 @@ public class StudentPane extends GridPane {
         return courseComboBox;
     }
 
-    /**
-     * Creates the ComboBox for selecting the student's company.
-     *
-     * @return The ComboBox for selecting the company.
-     */
     private ComboBox<Company> createStudentCompanyComboBox() {
         ComboBox<Company> companyComboBox = new ComboBox<>();
         companyComboBox.setItems(companyData.getCompanyList());
@@ -259,17 +256,6 @@ public class StudentPane extends GridPane {
         return companyComboBox;
     }
 
-    /**
-     * Creates the Button for adding a new student.
-     *
-     * @param nameField           The TextField for the student's name.
-     * @param surnameField        The TextField for the student's surname.
-     * @param javaSkillsSlider    The Slider for the student's Java skills.
-     * @param courseComboBox      The ComboBox for selecting the student's course.
-     * @param companyComboBox     The ComboBox for selecting the student's company.
-     * @param errorLabel          The Label for validation errors.
-     * @return The Button for adding a new student.
-     */
     private Button createStudentAddButton(TextField nameField, TextField surnameField, Slider javaSkillsSlider,
                                           ComboBox<Course> courseComboBox, ComboBox<Company> companyComboBox, Label errorLabel) {
         Button addButton = new Button("Add Student");
@@ -278,7 +264,6 @@ public class StudentPane extends GridPane {
             Course selectedCourse = courseComboBox.getSelectionModel().getSelectedItem();
             Company selectedCompany = companyComboBox.getSelectionModel().getSelectedItem();
 
-            // Validate input
             if (nameField.getText().isEmpty()) {
                 displayValidationError(errorLabel, "Please enter a name.");
                 return;
@@ -299,7 +284,7 @@ public class StudentPane extends GridPane {
                 return;
             }
 
-            clearValidationError(errorLabel); // Clear any existing error messages
+            clearValidationError(errorLabel);
 
             studentData.addStudent(nameField.getText(), surnameField.getText(),
                     (int) javaSkillsSlider.getValue(), selectedCourse.getId(), selectedCompany.getId());
@@ -311,12 +296,6 @@ public class StudentPane extends GridPane {
         return addButton;
     }
 
-    /**
-     * Creates the Button for removing a student.
-     *
-     * @param table The TableView of students.
-     * @return The Button for removing a student.
-     */
     private Button createStudentRemoveButton(TableView<Student> table) {
         Button removeButton = new Button("Remove Student");
         removeButton.setOnAction(event -> {
@@ -329,42 +308,83 @@ public class StudentPane extends GridPane {
         return removeButton;
     }
 
-    /**
-     * Creates the HBox for the Java skills slider.
-     *
-     * @param javaSkillsSlider The Slider for Java skills.
-     * @return The HBox for the Java skills slider.
-     */
-    private HBox createStudentSkillsBox(Slider javaSkillsSlider) {
-        Label skillsLabel = new Label("Java Skills:");
-        skillsLabel.getStyleClass().add("skills-label");
+    private Button createStudentEditButton(TableView<Student> table) {
+        Button editButton = new Button("Edit Student");
+        editButton.setOnAction(event -> {
+            if (selectedStudent != null) {
+                if (editButton.getText().equals("Edit Student")) {
+                    enableEditMode();
+                } else if (editButton.getText().equals("Save Changes")) {
+                    saveChanges();
+                }
+            }
+        });
 
-        HBox skillsBox = new HBox(10, skillsLabel, javaSkillsSlider);
-        skillsBox.setAlignment(Pos.CENTER_LEFT);
-
-        return skillsBox;
+        return editButton;
     }
 
-    /**
-     * Displays a validation error message in the error label.
-     *
-     * @param errorLabel The Label for displaying validation errors.
-     * @param message    The error message to display.
-     */
+    private void enableEditMode() {
+        nameField.setDisable(false);
+        surnameField.setDisable(false);
+        javaSkillsSlider.setDisable(false);
+        courseComboBox.setDisable(false);
+        companyComboBox.setDisable(false);
+        addButton.setDisable(true);
+        removeButton.setDisable(true);
+        searchField.setDisable(true);
+        table.setDisable(true);
+        editButton.setText("Cancel");
+    }
+
+    private void saveChanges() {
+        String name = nameField.getText();
+        String surname = surnameField.getText();
+        int javaskills = (int) javaSkillsSlider.getValue();
+        Course course = courseComboBox.getSelectionModel().getSelectedItem();
+        Company company = companyComboBox.getSelectionModel().getSelectedItem();
+
+        if (name.isEmpty()) {
+            displayValidationError(errorLabel, "Please enter a name.");
+            return;
+        }
+
+        if (surname.isEmpty()) {
+            displayValidationError(errorLabel, "Please enter a surname.");
+            return;
+        }
+
+        if (course == null) {
+            displayValidationError(errorLabel, "Please select a course.");
+            return;
+        }
+
+        if (company == null) {
+            displayValidationError(errorLabel, "Please select a company.");
+            return;
+        }
+
+        clearValidationError(errorLabel);
+
+        selectedStudent.setName(name);
+        selectedStudent.setSurname(surname);
+        selectedStudent.setJavaskills(javaskills);
+        selectedStudent.setCourse(course);
+        selectedStudent.setCompany(company);
+
+        table.refresh();
+        deselectStudent();
+        nameField.clear();
+        surnameField.clear();
+        javaSkillsSlider.setValue(0);
+    }
+
     private void displayValidationError(Label errorLabel, String message) {
         errorLabel.setText(message);
-        errorLabel.getStyleClass().add("error-label");
         errorLabel.setVisible(true);
     }
 
-    /**
-     * Clears the validation error message from the error label.
-     *
-     * @param errorLabel The Label for displaying validation errors.
-     */
     private void clearValidationError(Label errorLabel) {
         errorLabel.setText("");
         errorLabel.setVisible(false);
-        errorLabel.getStyleClass().remove("error-label");
     }
 }
