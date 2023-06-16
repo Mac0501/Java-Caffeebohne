@@ -11,28 +11,26 @@ import com.example.baum.course.Course;
  * enrolled course, and associated company.
  */
 public class Student {
-    private final int id;
+    private int id;
     private String name;
     private String surname;
-    private int javaskills;
+    private int javaSkills;
     private Course course;
     private Company company;
 
     /**
      * Constructs a Student object with the specified parameters.
      *
-     * @param id         The ID of the student.
      * @param name       The name of the student.
      * @param surname    The surname of the student.
-     * @param javaskills The Java skills level of the student.
+     * @param javaSkills The Java skills level of the student.
      * @param course     The enrolled course of the student.
      * @param company    The associated company of the student.
      */
-    public Student(int id, String name, String surname, int javaskills, Course course, Company company) {
-        this.id = id;
+    public Student(String name, String surname, int javaSkills, Course course, Company company) {
         this.name = name;
         this.surname = surname;
-        this.javaskills = javaskills;
+        this.javaSkills = javaSkills;
         this.course = course;
         this.company = company;
     }
@@ -44,6 +42,15 @@ public class Student {
      */
     public int getId() {
         return id;
+    }
+
+    /**
+     * Sets the ID of the student.
+     *
+     * @param id The ID of the student.
+     */
+    public void setId(int id) {
+        this.id = id;
     }
 
     /**
@@ -87,17 +94,17 @@ public class Student {
      *
      * @return The Java skills level of the student.
      */
-    public int getJavaskills() {
-        return javaskills;
+    public int getJavaSkills() {
+        return javaSkills;
     }
 
     /**
      * Sets the Java skills level of the student.
      *
-     * @param javaskills The Java skills level of the student.
+     * @param javaSkills The Java skills level of the student.
      */
-    public void setJavaskills(int javaskills) {
-        this.javaskills = javaskills;
+    public void setJavaSkills(int javaSkills) {
+        this.javaSkills = javaSkills;
     }
 
     /**

@@ -48,7 +48,8 @@ public class StudentData {
                 Course course = courseData.getCourseById(courseId);
                 Company company = companyData.getCompanyById(companyId);
 
-                Student student = new Student(id, name, surname, javaskills, course, company);
+                Student student = new Student(name, surname, javaskills, course, company);
+                student.setId(id); // Set the ID of the student
                 studentList.add(student);
             }
         } catch (SQLException e) {
@@ -70,7 +71,8 @@ public class StudentData {
             int lastInsertedId = getLastInsertedId();
             Course course = courseData.getCourseById(courseId);
             Company company = companyData.getCompanyById(companyId);
-            Student newStudent = new Student(lastInsertedId, name, surname, javaskills, course, company);
+            Student newStudent = new Student(name, surname, javaskills, course, company);
+            newStudent.setId(lastInsertedId); // Set the ID of the new student
             studentList.add(newStudent);
             clearFields();
         } catch (SQLException e) {
@@ -117,5 +119,38 @@ public class StudentData {
         // nameField.clear();
         // courseIdField.clear();
         // companyIdField.clear();
+    }
+
+    public void updateStudent(Student student) {
+        if (student != null) {
+            String updateQuery = "UPDATE student SET name = ?, surname = ?, javaskills = ?, course_id = ?, company_id = ? WHERE id = ?";
+            try {
+                PreparedStatement statement = databaseManager.getConnection().prepareStatement(updateQuery);
+                statement.setString(1, student.getName());
+                statement.setString(2, student.getSurname());
+                statement.setInt(3, student.getJavaSkills());
+                statement.setInt(4, student.getCourse().getId());
+                statement.setInt(5, student.getCompany().getId());
+                statement.setInt(6, student.getId());
+                statement.executeUpdate();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    public void removeStudents(ObservableList<Student> selectedStudents) {
+        String deleteQuery = "DELETE FROM student WHERE id = ?";
+        try {
+            PreparedStatement statement = databaseManager.getConnection().prepareStatement(deleteQuery);
+            for (Student student : selectedStudents) {
+                statement.setInt(1, student.getId());
+                statement.addBatch();
+            }
+            statement.executeBatch();
+            studentList.removeAll(selectedStudents);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
     }
 }

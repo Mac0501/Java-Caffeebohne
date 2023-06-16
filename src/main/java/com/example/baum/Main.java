@@ -1,5 +1,7 @@
 package com.example.baum;
 
+import com.example.baum.DatabaseManager;
+import com.example.baum.student.StudentPane;
 import javafx.application.Application;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
@@ -14,7 +16,6 @@ import com.example.baum.course.CoursePane;
 import com.example.baum.room.RoomData;
 import com.example.baum.room.RoomPane;
 import com.example.baum.student.StudentData;
-import com.example.baum.student.StudentPane;
 
 /**
  * The main class for the Student Manager application.
@@ -99,7 +100,7 @@ public class Main extends Application {
      * @return The created course pane.
      */
     private Pane createCoursePane() {
-        CoursePane coursePane = new CoursePane(courseData, roomData);
+        CoursePane coursePane = new CoursePane(courseData, roomData, studentData);
         coursePane.setMaxSize(Double.MAX_VALUE, Double.MAX_VALUE);
         return coursePane;
     }

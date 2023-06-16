@@ -1,47 +1,40 @@
 package com.example.baum.student;
 
-
-import com.example.baum.*;
 import com.example.baum.company.Company;
 import com.example.baum.company.CompanyData;
 import com.example.baum.course.Course;
 import com.example.baum.course.CourseData;
-import com.example.baum.student.Student;
-import com.example.baum.student.StudentData;
-import javafx.beans.property.SimpleStringProperty;
-import javafx.beans.property.StringProperty;
+import javafx.beans.binding.Bindings;
+import javafx.beans.property.SimpleObjectProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
+import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Optional;
 
 public class StudentPane extends GridPane {
-
-    private StudentData studentData;
-    private CourseData courseData;
-    private CompanyData companyData;
-
-    private TableView<Student> table;
-    private TextField searchField;
+    private TableView<Student> studentTable;
     private TextField nameField;
     private TextField surnameField;
+    private TextField searchField;
     private Label errorLabel;
     private Slider javaSkillsSlider;
     private ComboBox<Course> courseComboBox;
     private ComboBox<Company> companyComboBox;
-    private Button addButton;
+    private Button addEditButton;
     private Button removeButton;
-    private Button editButton;
-
-    private Student selectedStudent;
+    private Button deselectButton;
+    private final StudentData studentData;
+    private final CourseData courseData;
+    private final CompanyData companyData;
+    private SimpleObjectProperty<Student> selectedStudent = new SimpleObjectProperty<>(null);
+    private boolean doNotShowAgain = false;
 
     public StudentPane(StudentData studentData, CourseData courseData, CompanyData companyData) {
         this.studentData = studentData;
@@ -52,339 +45,357 @@ public class StudentPane extends GridPane {
         setHgap(10);
         setVgap(10);
 
-        createComponents();
-        layoutComponents();
+        createAndLayoutComponents();
         setupEventHandlers();
     }
 
-    private void createComponents() {
-        table = createStudentTable();
-        searchField = createStudentSearchField(table);
-        nameField = createStudentNameField();
-        surnameField = createStudentSurnameField();
-        errorLabel = createErrorLabel();
-        javaSkillsSlider = createStudentJavaSkillsSlider();
-        courseComboBox = createStudentCourseComboBox();
-        companyComboBox = createStudentCompanyComboBox();
-        addButton = createStudentAddButton(nameField, surnameField, javaSkillsSlider, courseComboBox, companyComboBox, errorLabel);
-        removeButton = createStudentRemoveButton(table);
-        editButton = createStudentEditButton(table);
+    private void createAndLayoutComponents() {
+        studentTable = createTableView();
+        searchField = createTextField("Search Students, Courses or Companies...");
+        nameField = createTextField("Name");
+        surnameField = createTextField("Surname");
+        javaSkillsSlider = createSlider();
+        Label javaSkillsLabel = new Label("Java Skills");
+        courseComboBox = createComboBox(courseData.getCourseList(), "Select Course");
+        companyComboBox = createComboBox(companyData.getCompanyList(), "Select Company");
+        errorLabel = new Label();
+        addEditButton = new Button("Add Student");
+        removeButton = new Button("Remove Student");
+        deselectButton = new Button("Deselect");
 
-        selectedStudent = null;
+        configureTableColumns();
+        configureFormFields();
+        configureButtons();
+
+        VBox vBox = createVBox(searchField, studentTable);
+        VBox formBox = createFormBox(nameField, surnameField, courseComboBox, companyComboBox,
+                javaSkillsLabel, javaSkillsSlider, addEditButton, removeButton, deselectButton, errorLabel);
+
+        setPadding(new Insets(10));
+        setHgap(10);
+        setVgap(10);
+        setColumnConstraints();
+        setVgrow(vBox, Priority.ALWAYS);
+        setVgrow(formBox, Priority.ALWAYS);
+        add(vBox, 0, 0);
+        add(formBox, 1, 0);
     }
 
-    private void layoutComponents() {
-        GridPane.setHgrow(table, Priority.ALWAYS);
-        GridPane.setVgrow(table, Priority.ALWAYS);
+    private TableView<Student> createTableView() {
+        TableView<Student> tableView = new TableView<>();
+        tableView.setItems(studentData.getStudentList());
+        tableView.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
+        tableView.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
+        return tableView;
+    }
 
-        GridPane.setHgrow(addButton, Priority.ALWAYS);
-        GridPane.setVgrow(addButton, Priority.ALWAYS);
+    private TextField createTextField(String promptText) {
+        TextField textField = new TextField();
+        textField.setPromptText(promptText);
+        return textField;
+    }
 
-        GridPane.setHgrow(removeButton, Priority.ALWAYS);
-        GridPane.setVgrow(removeButton, Priority.ALWAYS);
+    private Slider createSlider() {
+        Slider slider = new Slider(0, 100, 0);
+        slider.setShowTickLabels(true);
+        slider.setShowTickMarks(true);
+        slider.setMajorTickUnit(50);
+        slider.setMinorTickCount(5);
+        slider.setBlockIncrement(10);
+        return slider;
+    }
 
-        GridPane.setHgrow(editButton, Priority.ALWAYS);
-        GridPane.setVgrow(editButton, Priority.ALWAYS);
+    private <T> ComboBox<T> createComboBox(ObservableList<T> items, String promptText) {
+        ComboBox<T> comboBox = new ComboBox<>(items);
+        comboBox.setMaxWidth(Double.MAX_VALUE);
+        comboBox.setPromptText(promptText);
+        return comboBox;
+    }
 
-        add(table, 0, 0, 1, 3);
-
-        VBox vBox = new VBox(10, searchField, nameField, surnameField, courseComboBox, companyComboBox, javaSkillsSlider, addButton, removeButton, editButton, errorLabel);
+    private VBox createVBox(Node... nodes) {
+        VBox vBox = new VBox(10, nodes);
         vBox.setAlignment(Pos.TOP_CENTER);
-        add(vBox, 1, 0);
+        VBox.setVgrow(studentTable, Priority.ALWAYS);
+        vBox.setFillWidth(true);
+        return vBox;
+    }
 
-        ColumnConstraints col1 = new ColumnConstraints();
-        col1.setPercentWidth(70);
-        ColumnConstraints col2 = new ColumnConstraints();
-        col2.setPercentWidth(30);
-        getColumnConstraints().addAll(col1, col2);
+    private VBox createFormBox(Node... nodes) {
+        VBox formBox = new VBox(10, nodes);
+        formBox.setAlignment(Pos.TOP_CENTER);
+        formBox.setPadding(new Insets(10));
+        formBox.setMaxWidth(Double.MAX_VALUE);
+        formBox.setBackground(new Background(new BackgroundFill(Color.LIGHTGRAY, CornerRadii.EMPTY, Insets.EMPTY)));
+        return formBox;
+    }
+
+    private void configureTableColumns() {
+        TableColumn<Student, String> nameColumn = createColumn("Name", "name");
+        TableColumn<Student, String> surnameColumn = createColumn("Surname", "surname");
+        TableColumn<Student, Integer> javaSkillsColumn = createColumn("Java Skills", "javaSkills");
+        TableColumn<Student, Course> courseColumn = createColumn("Course", "course");
+        TableColumn<Student, Company> companyColumn = createColumn("Company", "company");
+
+        javaSkillsColumn.setCellFactory(column -> new TableCell<Student, Integer>() {
+            private final ProgressBar progressBar = new ProgressBar();
+
+            {
+                setContentDisplay(ContentDisplay.GRAPHIC_ONLY);
+                setGraphic(progressBar);
+                progressBar.setMaxWidth(Double.MAX_VALUE);
+            }
+
+            @Override
+            protected void updateItem(Integer javaSkills, boolean empty) {
+                super.updateItem(javaSkills, empty);
+                if (empty || javaSkills == null) {
+                    progressBar.setProgress(0);
+                    setGraphic(null);
+                } else {
+                    progressBar.setProgress(javaSkills.doubleValue() / 100);
+                    setGraphic(progressBar);
+                }
+            }
+
+            @Override
+            public void updateSelected(boolean selected) {
+                super.updateSelected(selected);
+                progressBar.prefWidthProperty().bind(widthProperty());
+            }
+        });
+
+        javaSkillsSlider.valueProperty().addListener((observable, oldValue, newValue) -> {
+            studentTable.refresh();
+        });
+
+        studentTable.getColumns().addAll(nameColumn, surnameColumn, courseColumn, companyColumn, javaSkillsColumn);
+    }
+
+    private <T> TableColumn<Student, T> createColumn(String title, String property) {
+        TableColumn<Student, T> column = new TableColumn<>(title);
+        column.setCellValueFactory(new PropertyValueFactory<>(property));
+        return column;
+    }
+
+    private void configureFormFields() {
+        nameField.setPromptText("Enter Name");
+        surnameField.setPromptText("Enter Surname");
+
+        studentTable.getSelectionModel().selectedItemProperty().addListener((observable, oldSelection, newSelection) -> {
+            ObservableList<Student> selectedStudents = studentTable.getSelectionModel().getSelectedItems();
+            if (!selectedStudents.isEmpty()) {
+                selectedStudent.set(selectedStudents.get(0));
+                fillFormWithStudentData(selectedStudent.get());
+                addEditButton.setText("Update Student");
+                removeButton.setDisable(false);
+                deselectButton.setDisable(false);
+            } else {
+                selectedStudent.set(null);
+                clearForm();
+                removeButton.setDisable(true);
+                deselectButton.setDisable(true);
+            }
+        });
+    }
+
+    private void configureButtons() {
+        removeButton.setDisable(true);
+        deselectButton.setDisable(true);
+
+        addEditButton.disableProperty().bind(
+                Bindings.isEmpty(nameField.textProperty())
+                        .or(Bindings.isEmpty(surnameField.textProperty()))
+                        .or(Bindings.isNull(companyComboBox.valueProperty()))
+                        .or(Bindings.createBooleanBinding(() -> selectedStudent.get() != null && !isFormChanged(),
+                                nameField.textProperty(),
+                                surnameField.textProperty(),
+                                javaSkillsSlider.valueProperty(),
+                                companyComboBox.valueProperty()
+                        ))
+        );
+    }
+
+    private void setColumnConstraints() {
+        ColumnConstraints column1 = new ColumnConstraints();
+        column1.setPercentWidth(70);
+        ColumnConstraints column2 = new ColumnConstraints();
+        column2.setPercentWidth(30);
+        getColumnConstraints().addAll(column1, column2);
     }
 
     private void setupEventHandlers() {
-        table.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
-            if (newValue != null) {
-                selectStudent(newValue);
+        searchField.textProperty().addListener((observable, oldText, newText) -> {
+            searchStudents(newText);
+        });
+
+        addEditButton.setOnAction(event -> {
+            if (selectedStudent.get() == null) {
+                addStudent();
             } else {
-                deselectStudent();
+                updateStudent(selectedStudent.get());
             }
+        });
+
+        removeButton.setOnAction(event -> {
+            ObservableList<Student> selectedStudents = studentTable.getSelectionModel().getSelectedItems();
+            if (selectedStudents.size() > 1) {
+                CheckBox doNotShowAgainCheckbox = new CheckBox("Do not show this again");
+                doNotShowAgainCheckbox.setSelected(false);
+
+                if (!doNotShowAgain) {
+                    Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+                    alert.setTitle("Confirmation");
+                    alert.setHeaderText("Remove Multiple Students");
+                    alert.setContentText("Are you sure you want to remove " + selectedStudents.size() + " students?");
+                    alert.getDialogPane().setContent(doNotShowAgainCheckbox);
+                    ButtonType okButton = new ButtonType("OK", ButtonBar.ButtonData.OK_DONE);
+                    ButtonType cancelButton = new ButtonType("Cancel", ButtonBar.ButtonData.CANCEL_CLOSE);
+                    alert.getButtonTypes().setAll(okButton, cancelButton);
+
+                    Optional<ButtonType> result = alert.showAndWait();
+                    if (result.isPresent() && result.get() == okButton) {
+                        if (doNotShowAgainCheckbox.isSelected()) {
+                            doNotShowAgain = true;
+                        }
+
+                        studentData.removeStudents(selectedStudents);
+                        clearForm();
+                    }
+                } else {
+                    studentData.removeStudents(selectedStudents);
+                    clearForm();
+                }
+            } else if (selectedStudents.size() == 1) {
+                studentData.removeStudent(selectedStudents.get(0));
+                clearForm();
+            }
+        });
+
+        deselectButton.setOnAction(event -> {
+            deselect();
         });
     }
 
-    private void selectStudent(Student student) {
-        selectedStudent = student;
+    private void fillFormWithStudentData(Student student) {
         nameField.setText(student.getName());
         surnameField.setText(student.getSurname());
-        javaSkillsSlider.setValue(student.getJavaskills());
-        courseComboBox.getSelectionModel().select(student.getCourse());
-        companyComboBox.getSelectionModel().select(student.getCompany());
-        addButton.setDisable(true);
-        removeButton.setDisable(true);
-        editButton.setText("Save Changes");
+        javaSkillsSlider.setValue(student.getJavaSkills());
+        courseComboBox.setValue(student.getCourse());
+        companyComboBox.setValue(student.getCompany());
     }
 
-    private void deselectStudent() {
-        selectedStudent = null;
+    private void addStudent() {
+        if (validateForm()) {
+            String name = nameField.getText();
+            String surname = surnameField.getText();
+            int javaSkills = (int) javaSkillsSlider.getValue();
+            Course course = courseComboBox.getValue();
+            Company company = companyComboBox.getValue();
+
+            studentData.addStudent(name, surname, javaSkills, course.getId(), company.getId());
+            clearForm();
+            deselect();
+        }
+    }
+
+    private void updateStudent(Student student) {
+        if (validateForm() && isFormChanged()) {
+            String newName = nameField.getText();
+            String newSurname = surnameField.getText();
+            int newJavaSkills = (int) javaSkillsSlider.getValue();
+            Course newCourse = courseComboBox.getValue();
+            Company newCompany = companyComboBox.getValue();
+
+            student.setName(newName);
+            student.setSurname(newSurname);
+            student.setJavaSkills(newJavaSkills);
+            student.setCourse(newCourse);
+            student.setCompany(newCompany);
+
+            studentData.updateStudent(student);
+
+            studentTable.refresh();
+
+            clearForm();
+            deselect();
+
+            studentTable.getSelectionModel().clearSelection();
+            studentTable.setStyle("");
+        }
+    }
+
+    private void deselect() {
+        studentTable.getSelectionModel().clearSelection();
+    }
+
+    private boolean validateForm() {
+        String errorMessage = "";
+
+        if (nameField.getText().isEmpty()) {
+            errorMessage += "No valid name!\n";
+        }
+        if (surnameField.getText().isEmpty()) {
+            errorMessage += "No valid surname!\n";
+        }
+        if (courseComboBox.getValue() == null) {
+            errorMessage += "No course selected!\n";
+        }
+        if (companyComboBox.getValue() == null) {
+            errorMessage += "No company selected!\n";
+        }
+
+        if (errorMessage.length() == 0) {
+            return true;
+        } else {
+            errorLabel.setText(errorMessage);
+            errorLabel.getStyleClass().add("error-label");
+            return false;
+        }
+    }
+
+    private void clearForm() {
         nameField.clear();
         surnameField.clear();
         javaSkillsSlider.setValue(0);
-        courseComboBox.getSelectionModel().clearSelection();
-        companyComboBox.getSelectionModel().clearSelection();
-        addButton.setDisable(false);
-        removeButton.setDisable(false);
-        editButton.setText("Edit Student");
-    }
-
-    private TableView<Student> createStudentTable() {
-        TableView<Student> table = new TableView<>();
-        table.setItems(studentData.getStudentList());
-        table.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
-
-        TableColumn<Student, String> nameColumn = new TableColumn<>("Name");
-        nameColumn.setCellValueFactory(new PropertyValueFactory<>("name"));
-
-        TableColumn<Student, String> surnameColumn = new TableColumn<>("Surname");
-        surnameColumn.setCellValueFactory(new PropertyValueFactory<>("surname"));
-
-        TableColumn<Student, Integer> javaSkillsColumn = createJavaSkillsColumn();
-        TableColumn<Student, Course> courseColumn = createCourseColumn();
-        TableColumn<Student, Company> companyColumn = createCompanyColumn();
-
-        List<TableColumn<Student, ?>> columns = new ArrayList<>();
-        columns.add(nameColumn);
-        columns.add(surnameColumn);
-        columns.add(courseColumn);
-        columns.add(companyColumn);
-        columns.add(javaSkillsColumn);
-
-        table.getColumns().addAll(columns);
-
-        return table;
-    }
-
-    private TableColumn<Student, Integer> createJavaSkillsColumn() {
-        TableColumn<Student, Integer> javaSkillsColumn = new TableColumn<>("Java Skills");
-        javaSkillsColumn.setCellValueFactory(new PropertyValueFactory<>("javaskills"));
-        javaSkillsColumn.setCellFactory(column -> new TableCell<Student, Integer>() {
-            @Override
-            protected void updateItem(Integer item, boolean empty) {
-                super.updateItem(item, empty);
-                if (item == null || empty) {
-                    setGraphic(null);
-                } else {
-                    ProgressBar progressBar = new ProgressBar(item / 100.0);
-                    progressBar.setMaxWidth(Double.MAX_VALUE);
-                    HBox.setHgrow(progressBar, Priority.ALWAYS);
-                    HBox hBox = new HBox(progressBar);
-                    setGraphic(hBox);
-                }
-            }
-        });
-
-        return javaSkillsColumn;
-    }
-
-    private TableColumn<Student, Course> createCourseColumn() {
-        TableColumn<Student, Course> courseColumn = new TableColumn<>("Course");
-        courseColumn.setCellValueFactory(new PropertyValueFactory<>("courseName"));
-
-        return courseColumn;
-    }
-
-    private TableColumn<Student, Company> createCompanyColumn() {
-        TableColumn<Student, Company> companyColumn = new TableColumn<>("Company");
-        companyColumn.setCellValueFactory(new PropertyValueFactory<>("companyName"));
-
-        return companyColumn;
-    }
-
-    private TextField createStudentSearchField(TableView<Student> table) {
-        TextField searchField = new TextField();
-        searchField.setPromptText("Search Students...");
-        searchField.textProperty().addListener((observable, oldValue, newValue) -> {
-            String searchTerm = newValue.trim().toLowerCase();
-            table.setItems(studentData.searchStudentsByName(searchTerm));
-        });
-
-        return searchField;
-    }
-
-    private TextField createStudentNameField() {
-        TextField nameField = new TextField();
-        nameField.setPromptText("Name");
-
-        return nameField;
-    }
-
-    private TextField createStudentSurnameField() {
-        TextField surnameField = new TextField();
-        surnameField.setPromptText("Surname");
-
-        return surnameField;
-    }
-
-    private Label createErrorLabel() {
-        Label errorLabel = new Label();
-        errorLabel.getStyleClass().add("error-label");
-        errorLabel.setTextFill(Color.RED);
-
-        return errorLabel;
-    }
-
-    private Slider createStudentJavaSkillsSlider() {
-        Slider javaSkillsSlider = new Slider(0, 100, 0);
-        javaSkillsSlider.setShowTickLabels(true);
-        javaSkillsSlider.setShowTickMarks(true);
-        javaSkillsSlider.setMajorTickUnit(25);
-        javaSkillsSlider.setMinorTickCount(5);
-        javaSkillsSlider.setBlockIncrement(10);
-
-        return javaSkillsSlider;
-    }
-
-    private ComboBox<Course> createStudentCourseComboBox() {
-        ComboBox<Course> courseComboBox = new ComboBox<>();
-        courseComboBox.setItems(courseData.getCourseList());
+        selectedStudent.set(null);
+        addEditButton.setText("Add Student");
         courseComboBox.setPromptText("Select Course");
-
-        return courseComboBox;
-    }
-
-    private ComboBox<Company> createStudentCompanyComboBox() {
-        ComboBox<Company> companyComboBox = new ComboBox<>();
-        companyComboBox.setItems(companyData.getCompanyList());
         companyComboBox.setPromptText("Select Company");
-
-        return companyComboBox;
-    }
-
-    private Button createStudentAddButton(TextField nameField, TextField surnameField, Slider javaSkillsSlider,
-                                          ComboBox<Course> courseComboBox, ComboBox<Company> companyComboBox, Label errorLabel) {
-        Button addButton = new Button("Add Student");
-        addButton.setMaxWidth(Double.MAX_VALUE);
-        addButton.setOnAction(e -> {
-            Course selectedCourse = courseComboBox.getSelectionModel().getSelectedItem();
-            Company selectedCompany = companyComboBox.getSelectionModel().getSelectedItem();
-
-            if (nameField.getText().isEmpty()) {
-                displayValidationError(errorLabel, "Please enter a name.");
-                return;
-            }
-
-            if (surnameField.getText().isEmpty()) {
-                displayValidationError(errorLabel, "Please enter a surname.");
-                return;
-            }
-
-            if (selectedCourse == null) {
-                displayValidationError(errorLabel, "Please select a course.");
-                return;
-            }
-
-            if (selectedCompany == null) {
-                displayValidationError(errorLabel, "Please select a company.");
-                return;
-            }
-
-            clearValidationError(errorLabel);
-
-            studentData.addStudent(nameField.getText(), surnameField.getText(),
-                    (int) javaSkillsSlider.getValue(), selectedCourse.getId(), selectedCompany.getId());
-            nameField.clear();
-            surnameField.clear();
-            javaSkillsSlider.setValue(0);
-        });
-
-        return addButton;
-    }
-
-    private Button createStudentRemoveButton(TableView<Student> table) {
-        Button removeButton = new Button("Remove Student");
-        removeButton.setOnAction(event -> {
-            Student selectedStudent = table.getSelectionModel().getSelectedItem();
-            if (selectedStudent != null) {
-                studentData.removeStudent(selectedStudent);
-            }
-        });
-
-        return removeButton;
-    }
-
-    private Button createStudentEditButton(TableView<Student> table) {
-        Button editButton = new Button("Edit Student");
-        editButton.setOnAction(event -> {
-            if (selectedStudent != null) {
-                if (editButton.getText().equals("Edit Student")) {
-                    enableEditMode();
-                } else if (editButton.getText().equals("Save Changes")) {
-                    saveChanges();
-                }
-            }
-        });
-
-        return editButton;
-    }
-
-    private void enableEditMode() {
-        nameField.setDisable(false);
-        surnameField.setDisable(false);
-        javaSkillsSlider.setDisable(false);
-        courseComboBox.setDisable(false);
-        companyComboBox.setDisable(false);
-        addButton.setDisable(true);
         removeButton.setDisable(true);
-        searchField.setDisable(true);
-        table.setDisable(true);
-        editButton.setText("Cancel");
-    }
-
-    private void saveChanges() {
-        String name = nameField.getText();
-        String surname = surnameField.getText();
-        int javaskills = (int) javaSkillsSlider.getValue();
-        Course course = courseComboBox.getSelectionModel().getSelectedItem();
-        Company company = companyComboBox.getSelectionModel().getSelectedItem();
-
-        if (name.isEmpty()) {
-            displayValidationError(errorLabel, "Please enter a name.");
-            return;
-        }
-
-        if (surname.isEmpty()) {
-            displayValidationError(errorLabel, "Please enter a surname.");
-            return;
-        }
-
-        if (course == null) {
-            displayValidationError(errorLabel, "Please select a course.");
-            return;
-        }
-
-        if (company == null) {
-            displayValidationError(errorLabel, "Please select a company.");
-            return;
-        }
-
-        clearValidationError(errorLabel);
-
-        selectedStudent.setName(name);
-        selectedStudent.setSurname(surname);
-        selectedStudent.setJavaskills(javaskills);
-        selectedStudent.setCourse(course);
-        selectedStudent.setCompany(company);
-
-        table.refresh();
-        deselectStudent();
-        nameField.clear();
-        surnameField.clear();
-        javaSkillsSlider.setValue(0);
-    }
-
-    private void displayValidationError(Label errorLabel, String message) {
-        errorLabel.setText(message);
-        errorLabel.setVisible(true);
-    }
-
-    private void clearValidationError(Label errorLabel) {
+        deselectButton.setDisable(true);
         errorLabel.setText("");
-        errorLabel.setVisible(false);
+        errorLabel.getStyleClass().remove("error-label");
+    }
+
+    private void searchStudents(String searchText) {
+        String searchTerm = searchText.toLowerCase();
+        ObservableList<Student> filteredList = FXCollections.observableArrayList();
+        for (Student student : studentData.getStudentList()) {
+            if (student.getName().toLowerCase().contains(searchTerm) ||
+                    student.getSurname().toLowerCase().contains(searchTerm) ||
+                    student.getCourse().getName().toLowerCase().contains(searchTerm) ||
+                    student.getCompany().getName().toLowerCase().contains(searchTerm)) {
+                filteredList.add(student);
+            }
+        }
+        studentTable.setItems(filteredList);
+    }
+
+    private boolean isFormChanged() {
+        Student student = selectedStudent.get();
+        if (student != null) {
+            String name = nameField.getText();
+            String surname = surnameField.getText();
+            int javaSkills = (int) javaSkillsSlider.getValue();
+            Course course = courseComboBox.getValue();
+            Company company = companyComboBox.getValue();
+
+            return !student.getName().equals(name) ||
+                    !student.getSurname().equals(surname) ||
+                    student.getJavaSkills() != javaSkills ||
+                    !student.getCourse().equals(course) ||
+                    !student.getCompany().equals(company);
+        }
+        return false;
     }
 }
