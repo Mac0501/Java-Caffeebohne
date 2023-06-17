@@ -2,7 +2,9 @@ package com.example.baum.course;
 
 import com.example.baum.room.Room;
 import com.example.baum.room.RoomData;
+import com.example.baum.student.Student;
 
+import javafx.collections.FXCollections;
 import javafx.geometry.Insets;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
@@ -14,11 +16,13 @@ public class CoursePane extends GridPane {
     private CourseData courseData;
     private RoomData roomData;
     private final TableView<Course> courseTableView;
+    private final TableView<Student> studentTableView;
 
     public CoursePane(CourseData courseData, RoomData roomData) {
         this.courseData = courseData;
         this.roomData = roomData;
         this.courseTableView = createCourseTableView();
+        this.studentTableView = createStudentTableView();
         initialize();
     }
 
@@ -31,14 +35,25 @@ public class CoursePane extends GridPane {
         Button removeButton = createRemoveCourseButton(courseTableView);
 
         configureLayout(nameField, roomComboBox, addButton, removeButton,
-                errorLabel, searchField, courseTableView);
+                errorLabel, searchField, courseTableView, studentTableView);
     }
     
     /**
-     * Updates the TableView with the latest room list.
+     * Updates the TableView with the latest course list.
      */
-    private void updateRoomTableView() {
+    private void updateCourseTableView() {
         courseTableView.setItems(courseData.getCourseList());
+    }
+
+    /**
+     * Updates the TableView with the students in the selected course.
+     */
+    private void updateStudentTableView(Course course) {
+        if (course != null) {
+            studentTableView.setItems(courseData.getCourseStudentList(course));
+        } else {
+            studentTableView.setItems(FXCollections.observableArrayList());
+        }
     }
 
     private TableView<Course> createCourseTableView() {
@@ -55,9 +70,62 @@ public class CoursePane extends GridPane {
         table.getColumns().add(nameColumn);
         table.getColumns().add(roomColumn);
 
+        // Add listener to update the student table when a course is selected
+        table.getSelectionModel().selectedItemProperty().addListener((obs, oldSelection, newSelection) -> {
+            updateStudentTableView(newSelection);
+        });
+
         return table;
     }
-    
+
+    private TableView<Student> createStudentTableView() {
+    TableView<Student> table = new TableView<>();
+    table.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
+
+    TableColumn<Student, String> nameColumn = new TableColumn<>("Name");
+    nameColumn.setCellValueFactory(new PropertyValueFactory<>("name"));
+
+    TableColumn<Student, String> surnameColumn = new TableColumn<>("Surname");
+    surnameColumn.setCellValueFactory(new PropertyValueFactory<>("surname"));
+
+    TableColumn<Student, Integer> javaSkillsColumn = new TableColumn<>("Java Skills");
+    javaSkillsColumn.setCellValueFactory(new PropertyValueFactory<>("javaSkills"));
+    javaSkillsColumn.setCellFactory(column -> new TableCell<Student, Integer>() {
+        private final ProgressBar progressBar = new ProgressBar();
+
+        {
+            setContentDisplay(ContentDisplay.GRAPHIC_ONLY);
+            setGraphic(progressBar);
+            progressBar.setMaxWidth(Double.MAX_VALUE);
+        }
+
+        @Override
+        protected void updateItem(Integer javaSkills, boolean empty) {
+            super.updateItem(javaSkills, empty);
+            if (empty || javaSkills == null) {
+                progressBar.setProgress(0);
+                setGraphic(null);
+            } else {
+                progressBar.setProgress(javaSkills.doubleValue() / 100);
+                setGraphic(progressBar);
+            }
+        }
+
+        @Override
+        public void updateSelected(boolean selected) {
+            super.updateSelected(selected);
+            progressBar.prefWidthProperty().bind(widthProperty());
+        }
+    });
+
+    TableColumn<Student, String> companyNameColumn = new TableColumn<>("Company");
+    companyNameColumn.setCellValueFactory(cellData -> cellData.getValue().getCompany().nameProperty());
+
+    table.getColumns().addAll(nameColumn, surnameColumn, javaSkillsColumn, companyNameColumn);
+
+    return table;
+}
+
 
     private TextField createCourseSearchField(TableView<Course> table) {
         TextField searchField = new TextField();
@@ -130,7 +198,7 @@ public class CoursePane extends GridPane {
             courseData.addCourse(nameField.getText(), selectedRoom.getId());
             nameField.clear();
             roomComboBox.getSelectionModel().clearSelection();
-            updateRoomTableView();
+            updateCourseTableView();
         });
 
         return addButton;
@@ -143,7 +211,7 @@ public class CoursePane extends GridPane {
             Course selected = table.getSelectionModel().getSelectedItem();
             if (selected != null) {
                 courseData.removeCourse(selected);
-                updateRoomTableView();
+                updateCourseTableView();
             }
         });
 
@@ -152,35 +220,59 @@ public class CoursePane extends GridPane {
         return removeButton;
     }
 
-    private void configureLayout(TextField nameField, ComboBox<Room> roomComboBox, Button addButton,
-                                          Button removeButton, Label errorLabel, TextField searchField, TableView<Course> table) {
-        this.setHgap(10);
-        this.setVgap(10);
-        this.setPadding(new Insets(10));
+private void configureLayout(TextField nameField, ComboBox<Room> roomComboBox, Button addButton,
+                                      Button removeButton, Label errorLabel, TextField searchField,
+                                      TableView<Course> courseTable, TableView<Student> studentTable) {
+    this.setHgap(10);
+    this.setVgap(10);
+    this.setPadding(new Insets(10));
 
-        ColumnConstraints col1 = new ColumnConstraints();
-        col1.setPercentWidth(50);
+    ColumnConstraints col1 = new ColumnConstraints();
+    col1.setPercentWidth(50);
 
-        ColumnConstraints col2 = new ColumnConstraints();
-        col2.setPercentWidth(50);
+    ColumnConstraints col2 = new ColumnConstraints();
+    col2.setPercentWidth(50);
 
-        this.getColumnConstraints().addAll(col1, col2);
+    this.getColumnConstraints().addAll(col1, col2);
 
-        this.add(nameField, 0, 0);
-        this.add(roomComboBox, 1, 0);
-        this.add(addButton, 0, 1, 1, 1);
-        this.add(removeButton, 1, 1, 1, 1);
-        this.add(errorLabel, 0, 2, 2, 1);
-        this.add(searchField, 0, 3, 2, 1);
-        this.add(table, 0, 4, 2, 1);
+    // Create a new GridPane to hold the tables
+    GridPane tableGrid = new GridPane();
+    tableGrid.setHgap(10);
+    tableGrid.setVgap(10);
 
-        GridPane.setHgrow(nameField, Priority.ALWAYS);
-        GridPane.setHgrow(roomComboBox, Priority.ALWAYS);
-        GridPane.setHgrow(addButton, Priority.ALWAYS);
-        GridPane.setHgrow(removeButton, Priority.ALWAYS);
-        GridPane.setHgrow(table, Priority.ALWAYS);
-        GridPane.setVgrow(table, Priority.ALWAYS);
-    }
+    // Add header label for the course table
+    Label courseTableHeader = new Label("Courses");
+    courseTableHeader.getStyleClass().add("table-header-label");
+    tableGrid.add(courseTableHeader, 0, 0);
+
+    // Add header label for the student table
+    Label studentTableHeader = new Label("Students of Course");
+    studentTableHeader.getStyleClass().add("table-header-label");
+    tableGrid.add(studentTableHeader, 1, 0);
+
+    tableGrid.add(courseTable, 0, 1);
+    tableGrid.add(studentTable, 1, 1);
+
+    GridPane.setHgrow(courseTable, Priority.ALWAYS);
+    GridPane.setHgrow(studentTable, Priority.ALWAYS);
+    GridPane.setVgrow(studentTable, Priority.ALWAYS);
+
+    this.add(nameField, 0, 0);
+    this.add(roomComboBox, 1, 0);
+    this.add(addButton, 0, 1);
+    this.add(removeButton, 1, 1);
+    this.add(errorLabel, 0, 2, 2, 1);
+    this.add(searchField, 0, 3, 2, 1);
+    this.add(tableGrid, 0, 4, 2, 1);
+
+    GridPane.setHgrow(nameField, Priority.ALWAYS);
+    GridPane.setHgrow(roomComboBox, Priority.ALWAYS);
+    GridPane.setHgrow(addButton, Priority.ALWAYS);
+    GridPane.setHgrow(removeButton, Priority.ALWAYS);
+    GridPane.setHgrow(tableGrid, Priority.ALWAYS);
+    GridPane.setVgrow(tableGrid, Priority.ALWAYS);
+}
+
 
     private Label createErrorLabel() {
         Label errorLabel = new Label();

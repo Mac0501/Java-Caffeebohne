@@ -10,7 +10,10 @@ import java.sql.SQLException;
 import java.sql.Statement;
 
 import com.example.baum.DatabaseManager;
+import com.example.baum.company.Company;
+import com.example.baum.company.CompanyData;
 import com.example.baum.room.RoomData;
+import com.example.baum.student.Student;
 import com.example.baum.room.Room;
 
 /**
@@ -20,6 +23,7 @@ public class CourseData {
     private final ObservableList<Course> courseList;
     private final DatabaseManager databaseManager;
     private final RoomData roomData;
+    private final CompanyData companyData;
 
     /**
      * Constructs a new CourseData object with the specified DatabaseManager and
@@ -30,12 +34,49 @@ public class CourseData {
      * @param roomData        The RoomData object used for accessing room
      *                        information.
      */
-    public CourseData(DatabaseManager databaseManager, RoomData roomData) {
+    public CourseData(DatabaseManager databaseManager, RoomData roomData, CompanyData companyData) {
         this.databaseManager = databaseManager;
         this.roomData = roomData;
+        this.companyData = companyData;
         courseList = FXCollections.observableArrayList();
     }
 
+
+    /**
+ * Retrieves the list of students enrolled in a course.
+ *
+ * @param course The course to retrieve the student list for.
+ * @return The ObservableList of students enrolled in the course.
+ */
+public ObservableList<Student> getCourseStudentList(Course course) {
+    ObservableList<Student> studentList = FXCollections.observableArrayList();
+    if (course != null) {
+        int courseId = course.getId();
+        String selectQuery = "SELECT * FROM student WHERE course_id = ?";
+        try {
+            PreparedStatement statement = databaseManager.getConnection().prepareStatement(selectQuery);
+            statement.setInt(1, courseId);
+            ResultSet resultSet = statement.executeQuery();
+            while (resultSet.next()) {
+                int id = resultSet.getInt("id");
+                String name = resultSet.getString("name");
+                String surname = resultSet.getString("surname");
+                int javaskills = resultSet.getInt("javaskills");
+                int companyId = resultSet.getInt("Company_id");
+                Company company = companyData.getCompanyById(companyId);
+
+                // Create a new Student object
+                Student student = new Student(name, surname, javaskills, course, company);
+                student.setId(id);
+                // Add the student to the list
+                studentList.add(student);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+    return studentList;
+}
     /**
      * Returns the list of courses.
      *

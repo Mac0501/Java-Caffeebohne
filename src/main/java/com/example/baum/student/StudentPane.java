@@ -292,7 +292,7 @@ public class StudentPane extends GridPane {
         // Enable the Batch Change button if multiple students are selected
         studentTable.getSelectionModel().getSelectedItems().addListener((ListChangeListener.Change<? extends Student> change) -> {
             int selectedCount = studentTable.getSelectionModel().getSelectedItems().size();
-            batchChangeButton.setDisable(selectedCount <= 1);
+            batchChangeButton.setDisable(selectedCount <= 2);
             addEditButton.setDisable(selectedCount > 1);
 
             if (selectedCount > 1) {

@@ -96,8 +96,8 @@ public class Main extends Application {
 
     private void initializeData() {
         roomData = new RoomData(databaseManager);
-        courseData = new CourseData(databaseManager, roomData);
         companyData = new CompanyData(databaseManager);
+        courseData = new CourseData(databaseManager, roomData, companyData);
         studentData = new StudentData(databaseManager, courseData, companyData);
 
         roomData.fetchRoomsFromDatabase();
