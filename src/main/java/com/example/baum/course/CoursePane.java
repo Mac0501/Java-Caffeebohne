@@ -207,18 +207,30 @@ public class CoursePane extends GridPane {
     }
 
     private Button createEditCourseButton(TableView<Course> table) {
-        Button editButton = new Button("Edit Course");
-        editButton.setMaxWidth(Double.MAX_VALUE);
-        editButton.setOnAction(e -> {
-            Course selectedCourse = table.getSelectionModel().getSelectedItem();
-            if (selectedCourse != null) {
-                showEditCourseDialog(selectedCourse);
-                updateCourseTableView();
-            }
-        });
+    Button editButton = new Button("Edit Course");
+    editButton.setMaxWidth(Double.MAX_VALUE);
+    editButton.setDisable(true); // Disable the button initially
+    editButton.getStyleClass().add("edit-button");
 
-        return editButton;
-    }
+    // Add a listener to enable/disable the button based on selection
+    table.getSelectionModel().selectedItemProperty().addListener((obs, oldSelection, newSelection) -> {
+        if (newSelection != null) {
+            editButton.setDisable(false); // Enable the button when a course is selected
+        } else {
+            editButton.setDisable(true); // Disable the button when no course is selected
+        }
+    });
+
+    editButton.setOnAction(e -> {
+        Course selectedCourse = table.getSelectionModel().getSelectedItem();
+        if (selectedCourse != null) {
+            showEditCourseDialog(selectedCourse);
+            updateCourseTableView();
+        }
+    });
+
+    return editButton;
+}
 
     private void showEditCourseDialog(Course course) {
         Dialog<Course> dialog = new Dialog<>();
@@ -260,6 +272,7 @@ public class CoursePane extends GridPane {
     private Button createRemoveCourseButton(TableView<Course> table) {
         Button removeButton = new Button("Remove Course");
         removeButton.setMaxWidth(Double.MAX_VALUE);
+        removeButton.getStyleClass().add("remove-button");
         removeButton.setOnAction(e -> {
             Course selectedCourse = table.getSelectionModel().getSelectedItem();
             if (selectedCourse != null) {
