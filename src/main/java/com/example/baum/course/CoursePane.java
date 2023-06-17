@@ -10,6 +10,7 @@ import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.GridPane;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 
 public class CoursePane extends GridPane {
@@ -32,12 +33,13 @@ public class CoursePane extends GridPane {
         Label errorLabel = createErrorLabel();
         ComboBox<Room> roomComboBox = createRoomComboBox();
         Button addButton = createAddCourseButton(nameField, roomComboBox, errorLabel);
+        Button editButton = createEditCourseButton(courseTableView);
         Button removeButton = createRemoveCourseButton(courseTableView);
 
-        configureLayout(nameField, roomComboBox, addButton, removeButton,
+        configureLayout(nameField, roomComboBox, addButton, editButton, removeButton,
                 errorLabel, searchField, courseTableView, studentTableView);
     }
-    
+
     /**
      * Updates the TableView with the latest course list.
      */
@@ -79,52 +81,52 @@ public class CoursePane extends GridPane {
     }
 
     private TableView<Student> createStudentTableView() {
-    TableView<Student> table = new TableView<>();
-    table.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
+        TableView<Student> table = new TableView<>();
+        table.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
 
-    TableColumn<Student, String> nameColumn = new TableColumn<>("Name");
-    nameColumn.setCellValueFactory(new PropertyValueFactory<>("name"));
+        TableColumn<Student, String> nameColumn = new TableColumn<>("Name");
+        nameColumn.setCellValueFactory(new PropertyValueFactory<>("name"));
 
-    TableColumn<Student, String> surnameColumn = new TableColumn<>("Surname");
-    surnameColumn.setCellValueFactory(new PropertyValueFactory<>("surname"));
+        TableColumn<Student, String> surnameColumn = new TableColumn<>("Surname");
+        surnameColumn.setCellValueFactory(new PropertyValueFactory<>("surname"));
 
-    TableColumn<Student, Integer> javaSkillsColumn = new TableColumn<>("Java Skills");
-    javaSkillsColumn.setCellValueFactory(new PropertyValueFactory<>("javaSkills"));
-    javaSkillsColumn.setCellFactory(column -> new TableCell<Student, Integer>() {
-        private final ProgressBar progressBar = new ProgressBar();
+        TableColumn<Student, Integer> javaSkillsColumn = new TableColumn<>("Java Skills");
+        javaSkillsColumn.setCellValueFactory(new PropertyValueFactory<>("javaSkills"));
+        javaSkillsColumn.setCellFactory(column -> new TableCell<Student, Integer>() {
+            private final ProgressBar progressBar = new ProgressBar();
 
-        {
-            setContentDisplay(ContentDisplay.GRAPHIC_ONLY);
-            setGraphic(progressBar);
-            progressBar.setMaxWidth(Double.MAX_VALUE);
-        }
-
-        @Override
-        protected void updateItem(Integer javaSkills, boolean empty) {
-            super.updateItem(javaSkills, empty);
-            if (empty || javaSkills == null) {
-                progressBar.setProgress(0);
-                setGraphic(null);
-            } else {
-                progressBar.setProgress(javaSkills.doubleValue() / 100);
+            {
+                setContentDisplay(ContentDisplay.GRAPHIC_ONLY);
                 setGraphic(progressBar);
+                progressBar.setMaxWidth(Double.MAX_VALUE);
             }
-        }
 
-        @Override
-        public void updateSelected(boolean selected) {
-            super.updateSelected(selected);
-            progressBar.prefWidthProperty().bind(widthProperty());
-        }
-    });
+            @Override
+            protected void updateItem(Integer javaSkills, boolean empty) {
+                super.updateItem(javaSkills, empty);
+                if (empty || javaSkills == null) {
+                    progressBar.setProgress(0);
+                    setGraphic(null);
+                } else {
+                    progressBar.setProgress(javaSkills.doubleValue() / 100);
+                    setGraphic(progressBar);
+                }
+            }
 
-    TableColumn<Student, String> companyNameColumn = new TableColumn<>("Company");
-    companyNameColumn.setCellValueFactory(cellData -> cellData.getValue().getCompany().nameProperty());
+            @Override
+            public void updateSelected(boolean selected) {
+                super.updateSelected(selected);
+                progressBar.prefWidthProperty().bind(widthProperty());
+            }
+        });
 
-    table.getColumns().addAll(nameColumn, surnameColumn, javaSkillsColumn, companyNameColumn);
+        TableColumn<Student, String> companyNameColumn = new TableColumn<>("Company");
+        companyNameColumn.setCellValueFactory(cellData -> cellData.getValue().getCompany().nameProperty());
 
-    return table;
-}
+        table.getColumns().addAll(nameColumn, surnameColumn, javaSkillsColumn, companyNameColumn);
+
+        return table;
+    }
 
 
     private TextField createCourseSearchField(TableView<Course> table) {
@@ -204,25 +206,85 @@ public class CoursePane extends GridPane {
         return addButton;
     }
 
-    private Button createRemoveCourseButton(TableView<Course> table) {
-        Button removeButton = new Button("Remove Course");
-        removeButton.setMaxWidth(Double.MAX_VALUE);
-        removeButton.setOnAction(e -> {
-            Course selected = table.getSelectionModel().getSelectedItem();
-            if (selected != null) {
-                courseData.removeCourse(selected);
+    private Button createEditCourseButton(TableView<Course> table) {
+        Button editButton = new Button("Edit Course");
+        editButton.setMaxWidth(Double.MAX_VALUE);
+        editButton.setOnAction(e -> {
+            Course selectedCourse = table.getSelectionModel().getSelectedItem();
+            if (selectedCourse != null) {
+                showEditCourseDialog(selectedCourse);
                 updateCourseTableView();
             }
         });
 
-        removeButton.getStyleClass().add("remove-button");
+        return editButton;
+    }
+
+    private void showEditCourseDialog(Course course) {
+        Dialog<Course> dialog = new Dialog<>();
+        dialog.setTitle("Edit Course");
+        dialog.setHeaderText("Edit Course Details");
+
+        ButtonType saveButtonType = new ButtonType("Save", ButtonBar.ButtonData.OK_DONE);
+        dialog.getDialogPane().getButtonTypes().addAll(saveButtonType, ButtonType.CANCEL);
+
+        GridPane gridPane = new GridPane();
+        gridPane.setHgap(10);
+        gridPane.setVgap(10);
+        gridPane.setPadding(new Insets(20, 150, 10, 10));
+
+        TextField nameField = new TextField(course.getName());
+        ComboBox<Room> roomComboBox = new ComboBox<>(roomData.getRoomList());
+        roomComboBox.getSelectionModel().select(course.getRoom());
+
+        gridPane.add(new Label("Course Name:"), 0, 0);
+        gridPane.add(nameField, 1, 0);
+        gridPane.add(new Label("Room:"), 0, 1);
+        gridPane.add(roomComboBox, 1, 1);
+
+        dialog.getDialogPane().setContent(gridPane);
+
+        dialog.setResultConverter(dialogButton -> {
+            if (dialogButton == saveButtonType) {
+                return new Course(course.getId(), nameField.getText(), roomComboBox.getSelectionModel().getSelectedItem());
+            }
+            return null;
+        });
+
+        dialog.showAndWait().ifPresent(editedCourse -> {
+            courseData.updateCourse(editedCourse);
+            updateCourseTableView();
+        });
+    }
+
+    private Button createRemoveCourseButton(TableView<Course> table) {
+        Button removeButton = new Button("Remove Course");
+        removeButton.setMaxWidth(Double.MAX_VALUE);
+        removeButton.setOnAction(e -> {
+            Course selectedCourse = table.getSelectionModel().getSelectedItem();
+            if (selectedCourse != null) {
+                courseData.removeCourse(selectedCourse);
+                updateCourseTableView();
+            }
+        });
 
         return removeButton;
     }
 
+    private Label createErrorLabel() {
+        Label errorLabel = new Label();
+        errorLabel.getStyleClass().add("error-label");
+        errorLabel.setVisible(false);
+        errorLabel.setMaxWidth(Double.MAX_VALUE);
+        GridPane.setHgrow(errorLabel, Priority.ALWAYS);
+        GridPane.setColumnSpan(errorLabel, 2);
+
+        return errorLabel;
+    }
+
 private void configureLayout(TextField nameField, ComboBox<Room> roomComboBox, Button addButton,
-                                      Button removeButton, Label errorLabel, TextField searchField,
-                                      TableView<Course> courseTable, TableView<Student> studentTable) {
+                             Button editButton, Button removeButton, Label errorLabel, TextField searchField,
+                             TableView<Course> courseTable, TableView<Student> studentTable) {
     this.setHgap(10);
     this.setVgap(10);
     this.setPadding(new Insets(10));
@@ -259,37 +321,38 @@ private void configureLayout(TextField nameField, ComboBox<Room> roomComboBox, B
 
     this.add(nameField, 0, 0);
     this.add(roomComboBox, 1, 0);
-    this.add(addButton, 0, 1);
-    this.add(removeButton, 1, 1);
+
+    // Create an HBox to hold the buttons
+    HBox buttonBox = new HBox(10); // Spacing between buttons
+
+    // Set the width of the buttonBox to fill 100% of the available space
+    buttonBox.setMaxWidth(Double.MAX_VALUE);
+    HBox.setHgrow(buttonBox, Priority.ALWAYS);
+
+    // Add buttons to the buttonBox
+    buttonBox.getChildren().addAll(addButton, editButton, removeButton);
+
+    this.add(buttonBox, 0, 1, 2, 1);
     this.add(errorLabel, 0, 2, 2, 1);
     this.add(searchField, 0, 3, 2, 1);
     this.add(tableGrid, 0, 4, 2, 1);
 
     GridPane.setHgrow(nameField, Priority.ALWAYS);
     GridPane.setHgrow(roomComboBox, Priority.ALWAYS);
-    GridPane.setHgrow(addButton, Priority.ALWAYS);
-    GridPane.setHgrow(removeButton, Priority.ALWAYS);
     GridPane.setHgrow(tableGrid, Priority.ALWAYS);
     GridPane.setVgrow(tableGrid, Priority.ALWAYS);
 }
 
 
-    private Label createErrorLabel() {
-        Label errorLabel = new Label();
-        errorLabel.getStyleClass().add("error-label");
 
-        return errorLabel;
-    }
 
-    private void displayValidationError(Label errorLabel, String message) {
-        errorLabel.setText(message);
-        errorLabel.getStyleClass().add("error-label");
+    private void displayValidationError(Label errorLabel, String errorMessage) {
+        errorLabel.setText(errorMessage);
         errorLabel.setVisible(true);
     }
 
     private void clearValidationError(Label errorLabel) {
         errorLabel.setText("");
         errorLabel.setVisible(false);
-        errorLabel.getStyleClass().remove("error-label");
     }
 }
