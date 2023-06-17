@@ -282,66 +282,77 @@ public class CoursePane extends GridPane {
         return errorLabel;
     }
 
-private void configureLayout(TextField nameField, ComboBox<Room> roomComboBox, Button addButton,
-                             Button editButton, Button removeButton, Label errorLabel, TextField searchField,
-                             TableView<Course> courseTable, TableView<Student> studentTable) {
-    this.setHgap(10);
-    this.setVgap(10);
-    this.setPadding(new Insets(10));
+    private void configureLayout(TextField nameField, ComboBox<Room> roomComboBox, Button addButton,
+                                 Button editButton, Button removeButton, Label errorLabel, TextField searchField,
+                                 TableView<Course> courseTable, TableView<Student> studentTable) {
+        this.setHgap(10);
+        this.setVgap(10);
+        this.setPadding(new Insets(10));
 
-    ColumnConstraints col1 = new ColumnConstraints();
-    col1.setPercentWidth(50);
+        ColumnConstraints col1 = new ColumnConstraints();
+        col1.setPercentWidth(50);
 
-    ColumnConstraints col2 = new ColumnConstraints();
-    col2.setPercentWidth(50);
+        ColumnConstraints col2 = new ColumnConstraints();
+        col2.setPercentWidth(50);
 
-    this.getColumnConstraints().addAll(col1, col2);
+        this.getColumnConstraints().addAll(col1, col2);
 
-    // Create a new GridPane to hold the tables
-    GridPane tableGrid = new GridPane();
-    tableGrid.setHgap(10);
-    tableGrid.setVgap(10);
+        // Create a new GridPane to hold the tables
+        GridPane tableGrid = new GridPane();
+        tableGrid.setHgap(10);
+        tableGrid.setVgap(10);
 
-    // Add header label for the course table
-    Label courseTableHeader = new Label("Courses");
-    courseTableHeader.getStyleClass().add("table-header-label");
-    tableGrid.add(courseTableHeader, 0, 0);
+        // Add header label for the course table
+        Label courseTableHeader = new Label("Courses");
+        courseTableHeader.getStyleClass().add("table-header-label");
+        tableGrid.add(courseTableHeader, 0, 0);
 
-    // Add header label for the student table
-    Label studentTableHeader = new Label("Students of Course");
-    studentTableHeader.getStyleClass().add("table-header-label");
-    tableGrid.add(studentTableHeader, 1, 0);
+        // Add header label for the student table
+        Label studentTableHeader = new Label("Students of Course");
+        studentTableHeader.getStyleClass().add("table-header-label");
+        tableGrid.add(studentTableHeader, 1, 0);
 
-    tableGrid.add(courseTable, 0, 1);
-    tableGrid.add(studentTable, 1, 1);
+        tableGrid.add(courseTable, 0, 1);
+        tableGrid.add(studentTable, 1, 1);
 
-    GridPane.setHgrow(courseTable, Priority.ALWAYS);
-    GridPane.setHgrow(studentTable, Priority.ALWAYS);
-    GridPane.setVgrow(studentTable, Priority.ALWAYS);
+        GridPane.setHgrow(courseTable, Priority.ALWAYS);
+        GridPane.setHgrow(studentTable, Priority.ALWAYS);
+        GridPane.setVgrow(studentTable, Priority.ALWAYS);
 
-    this.add(nameField, 0, 0);
-    this.add(roomComboBox, 1, 0);
+        this.add(nameField, 0, 0);
+        this.add(roomComboBox, 1, 0);
 
-    // Create an HBox to hold the buttons
-    HBox buttonBox = new HBox(10); // Spacing between buttons
+        // Create an HBox to hold the buttons
+        HBox buttonBox = new HBox(10); // Spacing between buttons
 
-    // Set the width of the buttonBox to fill 100% of the available space
-    buttonBox.setMaxWidth(Double.MAX_VALUE);
-    HBox.setHgrow(buttonBox, Priority.ALWAYS);
+        // Set the width of the buttonBox to fill 100% of the available space
+        buttonBox.setMaxWidth(Double.MAX_VALUE);
+        HBox.setHgrow(buttonBox, Priority.ALWAYS);
 
-    // Add buttons to the buttonBox
-    buttonBox.getChildren().addAll(addButton, editButton, removeButton);
+        // Add buttons to the buttonBox
+        buttonBox.getChildren().addAll(addButton, editButton, removeButton);
 
-    this.add(buttonBox, 0, 1, 2, 1);
-    this.add(errorLabel, 0, 2, 2, 1);
-    this.add(searchField, 0, 3, 2, 1);
-    this.add(tableGrid, 0, 4, 2, 1);
+        // Make buttons take all the available horizontal space
+        addButton.setMaxWidth(Double.MAX_VALUE);
+        editButton.setMaxWidth(Double.MAX_VALUE);
+        removeButton.setMaxWidth(Double.MAX_VALUE);
 
-    GridPane.setHgrow(nameField, Priority.ALWAYS);
-    GridPane.setHgrow(roomComboBox, Priority.ALWAYS);
-    GridPane.setHgrow(tableGrid, Priority.ALWAYS);
-    GridPane.setVgrow(tableGrid, Priority.ALWAYS);
-}
+        HBox.setHgrow(addButton, Priority.ALWAYS);
+        HBox.setHgrow(editButton, Priority.ALWAYS);
+        HBox.setHgrow(removeButton, Priority.ALWAYS);
+
+        this.add(buttonBox, 0, 1, 2, 1);
+        this.add(errorLabel, 0, 2, 2, 1);
+        this.add(searchField, 0, 3, 2, 1);
+        this.add(tableGrid, 0, 4, 2, 1);
+
+        GridPane.setHgrow(nameField, Priority.ALWAYS);
+        GridPane.setHgrow(roomComboBox, Priority.ALWAYS);
+        GridPane.setHgrow(tableGrid, Priority.ALWAYS);
+        GridPane.setVgrow(tableGrid, Priority.ALWAYS);
+    }
+
+
 
 
 
