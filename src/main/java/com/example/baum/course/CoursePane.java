@@ -29,10 +29,8 @@ public class CoursePane extends GridPane {
         Button addButton = createAddCourseButton(nameField, roomComboBox, errorLabel);
         Button removeButton = createRemoveCourseButton(table);
 
-        GridPane gridPane = createCourseGridPane(nameField, roomComboBox, addButton, removeButton,
+        configureLayout(nameField, roomComboBox, addButton, removeButton,
                 errorLabel, searchField, table);
-
-        this.getChildren().add(gridPane);
     }
 
     private TableView<Course> createCourseTableView() {
@@ -143,12 +141,11 @@ public class CoursePane extends GridPane {
         return removeButton;
     }
 
-    private GridPane createCourseGridPane(TextField nameField, ComboBox<Room> roomComboBox, Button addButton,
+    private void configureLayout(TextField nameField, ComboBox<Room> roomComboBox, Button addButton,
                                           Button removeButton, Label errorLabel, TextField searchField, TableView<Course> table) {
-        GridPane gridPane = new GridPane();
-        gridPane.setHgap(10);
-        gridPane.setVgap(10);
-        gridPane.setPadding(new Insets(10));
+        this.setHgap(10);
+        this.setVgap(10);
+        this.setPadding(new Insets(10));
 
         ColumnConstraints col1 = new ColumnConstraints();
         col1.setPercentWidth(50);
@@ -156,15 +153,15 @@ public class CoursePane extends GridPane {
         ColumnConstraints col2 = new ColumnConstraints();
         col2.setPercentWidth(50);
 
-        gridPane.getColumnConstraints().addAll(col1, col2);
+        this.getColumnConstraints().addAll(col1, col2);
 
-        gridPane.add(nameField, 0, 0);
-        gridPane.add(roomComboBox, 1, 0);
-        gridPane.add(addButton, 0, 1, 1, 1);
-        gridPane.add(removeButton, 1, 1, 1, 1);
-        gridPane.add(errorLabel, 0, 2, 2, 1);
-        gridPane.add(searchField, 0, 3, 2, 1);
-        gridPane.add(table, 0, 4, 2, 1);
+        this.add(nameField, 0, 0);
+        this.add(roomComboBox, 1, 0);
+        this.add(addButton, 0, 1, 1, 1);
+        this.add(removeButton, 1, 1, 1, 1);
+        this.add(errorLabel, 0, 2, 2, 1);
+        this.add(searchField, 0, 3, 2, 1);
+        this.add(table, 0, 4, 2, 1);
 
         GridPane.setHgrow(nameField, Priority.ALWAYS);
         GridPane.setHgrow(roomComboBox, Priority.ALWAYS);
@@ -172,8 +169,6 @@ public class CoursePane extends GridPane {
         GridPane.setHgrow(removeButton, Priority.ALWAYS);
         GridPane.setHgrow(table, Priority.ALWAYS);
         GridPane.setVgrow(table, Priority.ALWAYS);
-
-        return gridPane;
     }
 
     private Label createErrorLabel() {

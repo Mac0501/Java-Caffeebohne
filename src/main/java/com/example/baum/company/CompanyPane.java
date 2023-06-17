@@ -153,7 +153,7 @@ public class CompanyPane extends GridPane {
 
         this.getColumnConstraints().addAll(col1, col2);
 
-        this.add(nameField, 0, 0);
+        this.add(nameField, 0, 0, 2, 1);
         this.add(addButton, 0, 1);
         this.add(removeButton, 1, 1);
         this.add(errorLabel, 0, 2, 2, 1);
