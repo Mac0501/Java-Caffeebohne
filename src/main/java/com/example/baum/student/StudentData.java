@@ -2,25 +2,36 @@ package com.example.baum.student;
 
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.stream.Collectors;
-
 import com.example.baum.DatabaseManager;
 import com.example.baum.company.Company;
 import com.example.baum.company.CompanyData;
 import com.example.baum.course.Course;
 import com.example.baum.course.CourseData;
 
+/**
+ * A class that manages student data, including fetching from a database,
+ * adding, removing, searching, and updating students.
+ */
 public class StudentData {
     private final ObservableList<Student> studentList;
     private final DatabaseManager databaseManager;
     private final CourseData courseData;
     private final CompanyData companyData;
 
+    /**
+     * Constructs a StudentData object with the specified dependencies.
+     *
+     * @param databaseManager The DatabaseManager object used for database
+     *                        operations.
+     * @param courseData      The CourseData object used for accessing course data.
+     * @param companyData     The CompanyData object used for accessing company
+     *                        data.
+     */
     public StudentData(DatabaseManager databaseManager, CourseData courseData, CompanyData companyData) {
         this.databaseManager = databaseManager;
         this.courseData = courseData;
@@ -28,10 +39,18 @@ public class StudentData {
         studentList = FXCollections.observableArrayList();
     }
 
+    /**
+     * Retrieves the observable list of students.
+     *
+     * @return The observable list of students.
+     */
     public ObservableList<Student> getStudentList() {
         return studentList;
     }
 
+    /**
+     * Fetches students from the database and populates the student list.
+     */
     public void fetchStudentsFromDatabase() {
         studentList.clear();
         String selectQuery = "SELECT * FROM student";
@@ -58,6 +77,16 @@ public class StudentData {
         }
     }
 
+    /**
+     * Adds a student with the specified details to the database and the student
+     * list.
+     *
+     * @param name       The name of the student.
+     * @param surname    The surname of the student.
+     * @param javaskills The Java skills level of the student.
+     * @param courseId   The ID of the course associated with the student.
+     * @param companyId  The ID of the company associated with the student.
+     */
     public void addStudent(String name, String surname, int javaskills, int courseId, int companyId) {
         String insertQuery = "INSERT INTO student (name, surname, javaskills, course_id, company_id) VALUES (?, ?, ?, ?, ?)";
         try {
@@ -81,6 +110,11 @@ public class StudentData {
         }
     }
 
+    /**
+     * Removes the specified student from the database and the student list.
+     *
+     * @param student The student to be removed.
+     */
     public void removeStudent(Student student) {
         if (student != null) {
             String deleteQuery = "DELETE FROM student WHERE id = ?";
@@ -95,6 +129,12 @@ public class StudentData {
         }
     }
 
+    /**
+     * Searches for students in the student list by name.
+     *
+     * @param name The name to search for.
+     * @return The observable list of students matching the search criteria.
+     */
     public ObservableList<Student> searchStudentsByName(String name) {
         String searchTerm = name.toLowerCase();
         return FXCollections.observableArrayList(
@@ -104,6 +144,12 @@ public class StudentData {
                         .collect(Collectors.toList()));
     }
 
+    /**
+     * Retrieves the ID of the last inserted student from the database.
+     *
+     * @return The ID of the last inserted student.
+     * @throws SQLException If an SQL exception occurs.
+     */
     private int getLastInsertedId() throws SQLException {
         Statement statement = databaseManager.getConnection().createStatement();
         ResultSet resultSet = statement.executeQuery("SELECT LAST_INSERT_ID()");
@@ -113,6 +159,11 @@ public class StudentData {
         return -1;
     }
 
+    /**
+     * Clears the input fields after adding a student.
+     * This method can be extended to update the GUI with a notification or feedback
+     * to the user.
+     */
     private void clearFields() {
         // Clear text fields after adding a student
         // You can also update the GUI with a notification or feedback to the user
@@ -122,6 +173,11 @@ public class StudentData {
         // companyIdField.clear();
     }
 
+    /**
+     * Updates the details of the specified student in the database.
+     *
+     * @param student The student to be updated.
+     */
     public void updateStudent(Student student) {
         if (student != null) {
             String updateQuery = "UPDATE student SET name = ?, surname = ?, javaskills = ?, course_id = ?, company_id = ? WHERE id = ?";
@@ -140,6 +196,11 @@ public class StudentData {
         }
     }
 
+    /**
+     * Removes multiple students from the database and the student list.
+     *
+     * @param selectedStudents The list of students to be removed.
+     */
     public void removeStudents(ObservableList<Student> selectedStudents) {
         String deleteQuery = "DELETE FROM student WHERE id = ?";
         try {

@@ -41,42 +41,42 @@ public class CourseData {
         courseList = FXCollections.observableArrayList();
     }
 
-
     /**
- * Retrieves the list of students enrolled in a course.
- *
- * @param course The course to retrieve the student list for.
- * @return The ObservableList of students enrolled in the course.
- */
-public ObservableList<Student> getCourseStudentList(Course course) {
-    ObservableList<Student> studentList = FXCollections.observableArrayList();
-    if (course != null) {
-        int courseId = course.getId();
-        String selectQuery = "SELECT * FROM student WHERE course_id = ?";
-        try {
-            PreparedStatement statement = databaseManager.getConnection().prepareStatement(selectQuery);
-            statement.setInt(1, courseId);
-            ResultSet resultSet = statement.executeQuery();
-            while (resultSet.next()) {
-                int id = resultSet.getInt("id");
-                String name = resultSet.getString("name");
-                String surname = resultSet.getString("surname");
-                int javaskills = resultSet.getInt("javaskills");
-                int companyId = resultSet.getInt("Company_id");
-                Company company = companyData.getCompanyById(companyId);
+     * Retrieves the list of students enrolled in a course.
+     *
+     * @param course The course to retrieve the student list for.
+     * @return The ObservableList of students enrolled in the course.
+     */
+    public ObservableList<Student> getCourseStudentList(Course course) {
+        ObservableList<Student> studentList = FXCollections.observableArrayList();
+        if (course != null) {
+            int courseId = course.getId();
+            String selectQuery = "SELECT * FROM student WHERE course_id = ?";
+            try {
+                PreparedStatement statement = databaseManager.getConnection().prepareStatement(selectQuery);
+                statement.setInt(1, courseId);
+                ResultSet resultSet = statement.executeQuery();
+                while (resultSet.next()) {
+                    int id = resultSet.getInt("id");
+                    String name = resultSet.getString("name");
+                    String surname = resultSet.getString("surname");
+                    int javaskills = resultSet.getInt("javaskills");
+                    int companyId = resultSet.getInt("Company_id");
+                    Company company = companyData.getCompanyById(companyId);
 
-                // Create a new Student object
-                Student student = new Student(name, surname, javaskills, course, company);
-                student.setId(id);
-                // Add the student to the list
-                studentList.add(student);
+                    // Create a new Student object
+                    Student student = new Student(name, surname, javaskills, course, company);
+                    student.setId(id);
+                    // Add the student to the list
+                    studentList.add(student);
+                }
+            } catch (SQLException e) {
+                e.printStackTrace();
             }
-        } catch (SQLException e) {
-            e.printStackTrace();
         }
+        return studentList;
     }
-    return studentList;
-}
+
     /**
      * Returns the list of courses.
      *
@@ -109,38 +109,36 @@ public ObservableList<Student> getCourseStudentList(Course course) {
         }
     }
 
-
     /**
- * Updates the details of a course in the database and the course list.
- *
- * @param course The Course object to be updated.
- */
-public void updateCourse(Course course) {
-    if (course != null) {
-        try {
-            String updateQuery = "UPDATE course SET name = ?, room_id = ? WHERE id = ?";
-            PreparedStatement statement = databaseManager.getConnection().prepareStatement(updateQuery);
-            statement.setString(1, course.getName());
-            statement.setInt(2, course.getRoom().getId());
-            statement.setInt(3, course.getId());
-            statement.executeUpdate();
-            int index = -1;
-            for (int i = 0; i < courseList.size(); i++) {
-                if (courseList.get(i).getId() == course.getId()) {
-                    index = i;
-                    break;
+     * Updates the details of a course in the database and the course list.
+     *
+     * @param course The Course object to be updated.
+     */
+    public void updateCourse(Course course) {
+        if (course != null) {
+            try {
+                String updateQuery = "UPDATE course SET name = ?, room_id = ? WHERE id = ?";
+                PreparedStatement statement = databaseManager.getConnection().prepareStatement(updateQuery);
+                statement.setString(1, course.getName());
+                statement.setInt(2, course.getRoom().getId());
+                statement.setInt(3, course.getId());
+                statement.executeUpdate();
+                int index = -1;
+                for (int i = 0; i < courseList.size(); i++) {
+                    if (courseList.get(i).getId() == course.getId()) {
+                        index = i;
+                        break;
+                    }
                 }
-            }
 
-            if (index != -1) {
-                courseList.set(index, course);
+                if (index != -1) {
+                    courseList.set(index, course);
+                }
+            } catch (SQLException e) {
+                e.printStackTrace();
             }
-        } catch (SQLException e) {
-            e.printStackTrace();
         }
     }
-}
-
 
     /**
      * Adds a new course to the database and the course list.

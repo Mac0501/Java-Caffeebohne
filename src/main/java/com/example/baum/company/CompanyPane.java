@@ -44,7 +44,6 @@ public class CompanyPane extends GridPane {
         this.setMaxSize(Double.MAX_VALUE, Double.MAX_VALUE);
     }
 
-    // Model
     /**
      * Displays a validation error message in the error label.
      *
@@ -72,7 +71,11 @@ public class CompanyPane extends GridPane {
         errorLabel.getStyleClass().remove("error-label");
     }
 
-    // View
+    /**
+     * Creates and configures the search field for searching companies.
+     *
+     * @return The created TextField for searching companies.
+     */
     private TextField createCompanySearchField() {
         TextField searchField = new TextField();
         searchField.setPromptText("Search Companies...");
@@ -84,6 +87,11 @@ public class CompanyPane extends GridPane {
         return searchField;
     }
 
+    /**
+     * Creates and configures the text field for entering company names.
+     *
+     * @return The created TextField for entering company names.
+     */
     private TextField createCompanyNameField() {
         TextField nameField = new TextField();
         nameField.setPromptText("Company Name");
@@ -91,6 +99,11 @@ public class CompanyPane extends GridPane {
         return nameField;
     }
 
+    /**
+     * Creates and configures the error label for displaying validation errors.
+     *
+     * @return The created error label for validation errors.
+     */
     private Label createCompanyErrorLabel() {
         Label errorLabel = new Label();
         errorLabel.getStyleClass().add("error-label");
@@ -98,6 +111,11 @@ public class CompanyPane extends GridPane {
         return errorLabel;
     }
 
+    /**
+     * Creates and configures the TableView for displaying companies.
+     *
+     * @return The created TableView for displaying companies.
+     */
     private TableView<Company> createCompanyTableView() {
         TableView<Company> table = new TableView<>();
         table.setItems(companyData.getCompanyList());
@@ -111,7 +129,11 @@ public class CompanyPane extends GridPane {
         return table;
     }
 
-    // Controller
+    /**
+     * Creates and configures the "Add Company" button.
+     *
+     * @return The created "Add Company" button.
+     */
     private Button createAddCompanyButton() {
         Button addButton = new Button("Add Company");
         addButton.setMaxWidth(Double.MAX_VALUE);
@@ -130,6 +152,11 @@ public class CompanyPane extends GridPane {
         return addButton;
     }
 
+    /**
+     * Creates and configures the "Remove Company" button.
+     *
+     * @return The created "Remove Company" button.
+     */
     private Button createRemoveCompanyButton() {
         Button removeButton = new Button("Remove Company");
         removeButton.setMaxWidth(Double.MAX_VALUE);
@@ -146,10 +173,19 @@ public class CompanyPane extends GridPane {
         return removeButton;
     }
 
-    // Layout configuration
+    /**
+     * Configures the layout of the CompanyPane by adding components to it.
+     *
+     * @param nameField    The TextField for entering company names.
+     * @param addButton    The "Add Company" button.
+     * @param removeButton The "Remove Company" button.
+     * @param errorLabel   The error label for displaying validation errors.
+     * @param searchField  The TextField for searching companies.
+     * @param table        The TableView for displaying companies.
+     */
     private void configureLayout(TextField nameField, Button addButton,
-                                 Button removeButton, Label errorLabel,
-                                 TextField searchField, TableView<Company> table) {
+            Button removeButton, Label errorLabel,
+            TextField searchField, TableView<Company> table) {
         this.setHgap(10);
         this.setVgap(10);
         this.setPadding(new Insets(10));

@@ -18,6 +18,11 @@ import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 
 import java.util.Optional;
+
+/**
+ * The StudentPane class represents a custom JavaFX GridPane that displays and
+ * manages student data.
+ */
 public class StudentPane extends GridPane {
     private TableView<Student> studentTable;
     private TextField nameField;
@@ -37,6 +42,14 @@ public class StudentPane extends GridPane {
     private SimpleObjectProperty<Student> selectedStudent = new SimpleObjectProperty<>(null);
     private boolean doNotShowAgain = false;
 
+    /**
+     * Constructs a StudentPane with the specified StudentData, CourseData, and
+     * CompanyData objects.
+     *
+     * @param studentData the StudentData object containing student information
+     * @param courseData  the CourseData object containing course information
+     * @param companyData the CompanyData object containing company information
+     */
     public StudentPane(StudentData studentData, CourseData courseData, CompanyData companyData) {
         this.studentData = studentData;
         this.courseData = courseData;
@@ -54,6 +67,9 @@ public class StudentPane extends GridPane {
         });
     }
 
+    /**
+     * Creates and layouts the components of the StudentPane.
+     */
     private void createAndLayoutComponents() {
         studentTable = createTableView();
         searchField = createTextField("Search Students, Courses or Companies...");
@@ -94,6 +110,11 @@ public class StudentPane extends GridPane {
         studentTable.setItems(studentData.getStudentList());
     }
 
+    /**
+     * Creates a TableView object and configures it with the student data.
+     *
+     * @return The configured TableView object.
+     */
     private TableView<Student> createTableView() {
         TableView<Student> tableView = new TableView<>();
         tableView.setItems(studentData.getStudentList());
@@ -102,12 +123,23 @@ public class StudentPane extends GridPane {
         return tableView;
     }
 
+    /**
+     * Creates a TextField object with the specified prompt text.
+     *
+     * @param promptText The text to be displayed as a prompt in the TextField.
+     * @return The configured TextField object.
+     */
     private TextField createTextField(String promptText) {
         TextField textField = new TextField();
         textField.setPromptText(promptText);
         return textField;
     }
 
+    /**
+     * Creates a Slider object with the specified configuration.
+     *
+     * @return The configured Slider object.
+     */
     private Slider createSlider() {
         Slider slider = new Slider(0, 100, 0);
         slider.setShowTickLabels(true);
@@ -125,6 +157,14 @@ public class StudentPane extends GridPane {
         return comboBox;
     }
 
+    /**
+     * Creates a ComboBox object with the specified items and prompt text.
+     *
+     * @param items      The list of items to be displayed in the ComboBox.
+     * @param promptText The text to be displayed as a prompt in the ComboBox.
+     * @param <T>        The type of items in the ComboBox.
+     * @return The configured ComboBox object.
+     */
     private VBox createVBox(Node... nodes) {
         VBox vBox = new VBox(10, nodes);
         vBox.setAlignment(Pos.TOP_CENTER);
@@ -133,6 +173,12 @@ public class StudentPane extends GridPane {
         return vBox;
     }
 
+    /**
+     * Creates a VBox container for a form layout with the specified nodes.
+     *
+     * @param nodes The nodes to be added to the form VBox.
+     * @return The configured VBox container.
+     */
     private VBox createFormBox(Node... nodes) {
         VBox formBox = new VBox(10, nodes);
         formBox.setAlignment(Pos.TOP_CENTER);
@@ -142,6 +188,11 @@ public class StudentPane extends GridPane {
         return formBox;
     }
 
+    /**
+     * Configures the columns of the TableView for displaying student data.
+     * This method creates the necessary TableColumn objects and sets up their cell
+     * factories and event listeners.
+     */
     private void configureTableColumns() {
         TableColumn<Student, String> nameColumn = createColumn("Name", "name");
         TableColumn<Student, String> surnameColumn = createColumn("Surname", "surname");
@@ -184,46 +235,67 @@ public class StudentPane extends GridPane {
         studentTable.getColumns().addAll(nameColumn, surnameColumn, courseColumn, companyColumn, javaSkillsColumn);
     }
 
+    /**
+     * Creates a TableColumn with the specified title and property.
+     *
+     * @param title    The title to be displayed for the column.
+     * @param property The property name to be used for cell value retrieval.
+     * @param <T>      The type of cell value for the column.
+     * @return The configured TableColumn object.
+     */
     private <T> TableColumn<Student, T> createColumn(String title, String property) {
         TableColumn<Student, T> column = new TableColumn<>(title);
         column.setCellValueFactory(new PropertyValueFactory<>(property));
         return column;
     }
 
+    /**
+     * Configures the form fields based on the selected item in the student table.
+     * This method sets prompt texts for name and surname fields and adds a listener
+     * to the selected item property of the student table.
+     * When the selection changes, the form fields are updated accordingly, and
+     * buttons are enabled or disabled based on the selection state.
+     */
     private void configureFormFields() {
         nameField.setPromptText("Enter Name");
         surnameField.setPromptText("Enter Surname");
 
-        studentTable.getSelectionModel().selectedItemProperty().addListener((observable, oldSelection, newSelection) -> {
-            ObservableList<Student> selectedStudents = studentTable.getSelectionModel().getSelectedItems();
-            if (!selectedStudents.isEmpty()) {
-                if (selectedStudents.size() == 1) {
-                    selectedStudent.set(selectedStudents.get(0));
-                    fillFormWithStudentData(selectedStudent.get());
-                    addEditButton.setText("Update Student");
-                    removeButton.setDisable(false);
-                    deselectButton.setDisable(false);
-                    enableFormFields(true);
-                } else {
-                    selectedStudent.set(null);
-                    clearForm();
-                    removeButton.setDisable(false);
-                    deselectButton.setDisable(false);
-                    enableFormFields(false);
-                }
-                batchChangeButton.disableProperty().unbind();
-                batchChangeButton.setDisable(false);
-            } else {
-                selectedStudent.set(null);
-                clearForm();
-                removeButton.setDisable(true);
-                deselectButton.setDisable(true);
-                enableFormFields(true);
-                batchChangeButton.setDisable(true);
-            }
-        });
+        studentTable.getSelectionModel().selectedItemProperty()
+                .addListener((observable, oldSelection, newSelection) -> {
+                    ObservableList<Student> selectedStudents = studentTable.getSelectionModel().getSelectedItems();
+                    if (!selectedStudents.isEmpty()) {
+                        if (selectedStudents.size() == 1) {
+                            selectedStudent.set(selectedStudents.get(0));
+                            fillFormWithStudentData(selectedStudent.get());
+                            addEditButton.setText("Update Student");
+                            removeButton.setDisable(false);
+                            deselectButton.setDisable(false);
+                            enableFormFields(true);
+                        } else {
+                            selectedStudent.set(null);
+                            clearForm();
+                            removeButton.setDisable(false);
+                            deselectButton.setDisable(false);
+                            enableFormFields(false);
+                        }
+                        batchChangeButton.disableProperty().unbind();
+                        batchChangeButton.setDisable(false);
+                    } else {
+                        selectedStudent.set(null);
+                        clearForm();
+                        removeButton.setDisable(true);
+                        deselectButton.setDisable(true);
+                        enableFormFields(true);
+                        batchChangeButton.setDisable(true);
+                    }
+                });
     }
 
+    /**
+     * Enables or disables the form fields based on the specified boolean value.
+     *
+     * @param enable Determines whether to enable or disable the form fields.
+     */
     private void enableFormFields(boolean enable) {
         boolean disableFormFields = !enable || studentTable.getSelectionModel().getSelectedItems().size() > 1;
         nameField.setDisable(disableFormFields);
@@ -233,6 +305,15 @@ public class StudentPane extends GridPane {
         companyComboBox.setDisable(disableFormFields);
     }
 
+    /**
+     * Configures the functionality and behavior of the buttons in the user
+     * interface.
+     * This method sets style classes for the removeButton and deselectButton.
+     * It also defines event handlers for the addEditButton, removeButton,
+     * deselectButton, and batchChangeButton.
+     * The method also updates the state of the buttons based on the selected items
+     * in the student table.
+     */
     private void configureButtons() {
         removeButton.getStyleClass().add("remove-button"); // Add the "remove-button" style class
         deselectButton.getStyleClass().add("gray-button"); // Add the "gray-button" style class
@@ -243,7 +324,7 @@ public class StudentPane extends GridPane {
             } else {
                 updateStudent(selectedStudent.get());
             }
-        updateRoomTableView();
+            updateRoomTableView();
         });
 
         removeButton.setOnAction(event -> {
@@ -296,23 +377,25 @@ public class StudentPane extends GridPane {
         batchChangeButton.setDisable(true);
 
         // Enable the Batch Change button if multiple students are selected
-        studentTable.getSelectionModel().getSelectedItems().addListener((ListChangeListener.Change<? extends Student> change) -> {
-            int selectedCount = studentTable.getSelectionModel().getSelectedItems().size();
-            batchChangeButton.setDisable(selectedCount <= 2);
-            addEditButton.setDisable(selectedCount > 1);
+        studentTable.getSelectionModel().getSelectedItems()
+                .addListener((ListChangeListener.Change<? extends Student> change) -> {
+                    int selectedCount = studentTable.getSelectionModel().getSelectedItems().size();
+                    batchChangeButton.setDisable(selectedCount <= 2);
+                    addEditButton.setDisable(selectedCount > 1);
 
-            if (selectedCount > 1) {
-                removeButton.setText("Remove Students");
-            } else {
-                removeButton.setText("Remove Student");
-            }
-        });
+                    if (selectedCount > 1) {
+                        removeButton.setText("Remove Students");
+                    } else {
+                        removeButton.setText("Remove Student");
+                    }
+                });
     }
 
-
-
-
-
+    /**
+     * Sets the column constraints for a container or layout.
+     * This method defines the width percentage for each column and adds the
+     * constraints to the container or layout.
+     */
     private void setColumnConstraints() {
         ColumnConstraints column1 = new ColumnConstraints();
         column1.setPercentWidth(70);
@@ -323,6 +406,12 @@ public class StudentPane extends GridPane {
         getColumnConstraints().addAll(column1, column2);
     }
 
+    /**
+     * Sets up event handlers for various UI components.
+     * This method assigns the necessary event handlers to the search field,
+     * add/edit button, remove button,
+     * deselect button, and batch change button.
+     */
     private void setupEventHandlers() {
         searchField.textProperty().addListener((observable, oldText, newText) -> {
             searchStudents(newText);
@@ -385,6 +474,12 @@ public class StudentPane extends GridPane {
         });
     }
 
+    /**
+     * Fills the form fields with data from the given student.
+     *
+     * @param student The student object containing the data to fill the form fields
+     *                with.
+     */
     private void fillFormWithStudentData(Student student) {
         nameField.setText(student.getName());
         surnameField.setText(student.getSurname());
@@ -393,6 +488,11 @@ public class StudentPane extends GridPane {
         companyComboBox.setValue(student.getCompany());
     }
 
+    /**
+     * Adds a new student based on the values entered in the form fields.
+     * Validates the form fields before adding the student.
+     * Clears the form fields and deselects any selected student after adding.
+     */
     private void addStudent() {
         if (validateForm()) {
             String name = nameField.getText();
@@ -407,6 +507,14 @@ public class StudentPane extends GridPane {
         }
     }
 
+    /**
+     * Updates the selected student with the values entered in the form fields.
+     * Validates the form fields and checks if any changes have been made before
+     * updating the student.
+     * Refreshes the student table after updating.
+     * Clears the form fields, deselects any selected student, and clears the table
+     * selection.
+     */
     private void updateStudent(Student student) {
         if (validateForm() && isFormChanged()) {
             String newName = nameField.getText();
@@ -430,10 +538,18 @@ public class StudentPane extends GridPane {
         }
     }
 
+    /**
+     * Deselects any selected student in the student table.
+     */
     private void deselect() {
         studentTable.getSelectionModel().clearSelection();
     }
 
+    /**
+     * Validates the form fields to ensure that they contain valid values.
+     *
+     * @return true if the form fields are valid, false otherwise.
+     */
     private boolean validateForm() {
         String errorMessage = "";
 
@@ -459,6 +575,9 @@ public class StudentPane extends GridPane {
         }
     }
 
+    /**
+     * Clears the form fields and resets the form to its initial state.
+     */
     private void clearForm() {
         nameField.clear();
         surnameField.clear();
@@ -473,6 +592,12 @@ public class StudentPane extends GridPane {
         errorLabel.getStyleClass().remove("error-label");
     }
 
+    /**
+     * Searches for students based on the given search text and updates the
+     * TableView with the filtered results.
+     *
+     * @param searchText the text to search for
+     */
     private void searchStudents(String searchText) {
         String searchTerm = searchText.toLowerCase();
         ObservableList<Student> filteredList = FXCollections.observableArrayList();
@@ -489,6 +614,11 @@ public class StudentPane extends GridPane {
         studentTable.setItems(filteredList);
     }
 
+    /**
+     * Checks if any form fields have been changed compared to the selected student.
+     *
+     * @return true if any form fields have been changed, false otherwise
+     */
     private boolean isFormChanged() {
         Student student = selectedStudent.get();
 
@@ -509,6 +639,12 @@ public class StudentPane extends GridPane {
         return false;
     }
 
+    /**
+     * Performs batch changes for selected students based on new values entered by
+     * the user.
+     * The batch changes include updating the course and/or company for the selected
+     * students.
+     */
     private void batchChangeStudents() {
         ObservableList<Student> selectedStudents = studentTable.getSelectionModel().getSelectedItems();
 
@@ -518,7 +654,8 @@ public class StudentPane extends GridPane {
             dialog.setHeaderText("Enter New Values for Batch Changes");
 
             // Apply modern dialog styling
-            dialog.getDialogPane().getStylesheets().add(getClass().getResource("/com/example/baum/style.css").toExternalForm());
+            dialog.getDialogPane().getStylesheets()
+                    .add(getClass().getResource("/com/example/baum/style.css").toExternalForm());
             dialog.getDialogPane().getStyleClass().add("batch-change-dialog");
 
             GridPane grid = new GridPane();
@@ -572,18 +709,25 @@ public class StudentPane extends GridPane {
         }
     }
 
-
-    // Helper class to store the batch change result
+    /**
+     * Helper class to store the result of a batch change operation.
+     * It encapsulates the new course and new company selected for the batch change.
+     */
     private static class BatchChangeResult {
         private final Course newCourse;
         private final Company newCompany;
 
+        /**
+         * Constructs a new BatchChangeResult object with the specified new course and
+         * new company.
+         *
+         * @param newCourse  The new course selected for the batch change.
+         * @param newCompany The new company selected for the batch change.
+         */
         public BatchChangeResult(Course newCourse, Company newCompany) {
             this.newCourse = newCourse;
             this.newCompany = newCompany;
         }
     }
-
-
 
 }

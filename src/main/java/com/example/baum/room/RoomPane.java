@@ -28,7 +28,7 @@ public class RoomPane extends GridPane {
         this.roomTableView = createRoomTableView();
 
         updateRoomTableView();
-        
+
         initialize();
     }
 
@@ -41,10 +41,10 @@ public class RoomPane extends GridPane {
         Button removeButton = createRemoveRoomButton();
 
         configureLayout(nameField, addButton, removeButton, errorLabel, searchField, roomTableView);
-
     }
 
     // Model
+
     /**
      * Displays a validation error message in the error label.
      *
@@ -72,7 +72,11 @@ public class RoomPane extends GridPane {
         roomTableView.setItems(roomData.getRoomList());
     }
 
-    // View
+    /**
+     * Creates a TextField for searching rooms.
+     *
+     * @return The created TextField.
+     */
     private TextField createRoomSearchField() {
         TextField searchField = new TextField();
         searchField.setPromptText("Search Rooms...");
@@ -84,6 +88,11 @@ public class RoomPane extends GridPane {
         return searchField;
     }
 
+    /**
+     * Creates a TextField for entering the room name.
+     *
+     * @return The created TextField.
+     */
     private TextField createRoomNameField() {
         TextField nameField = new TextField();
         nameField.setPromptText("Room Name");
@@ -91,6 +100,11 @@ public class RoomPane extends GridPane {
         return nameField;
     }
 
+    /**
+     * Creates a Label for displaying validation errors.
+     *
+     * @return The created Label.
+     */
     private Label createRoomErrorLabel() {
         Label errorLabel = new Label();
         errorLabel.getStyleClass().add("error-label");
@@ -98,6 +112,11 @@ public class RoomPane extends GridPane {
         return errorLabel;
     }
 
+    /**
+     * Creates and configures the TableView for displaying rooms.
+     *
+     * @return The configured TableView.
+     */
     private TableView<Room> createRoomTableView() {
         TableView<Room> table = new TableView<>();
         table.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
@@ -110,7 +129,11 @@ public class RoomPane extends GridPane {
         return table;
     }
 
-    // Controller
+    /**
+     * Creates a Button for adding a room.
+     *
+     * @return The created Button.
+     */
     private Button createAddRoomButton() {
         Button addButton = new Button("Add Room");
         addButton.setMaxWidth(Double.MAX_VALUE);
@@ -129,6 +152,11 @@ public class RoomPane extends GridPane {
         return addButton;
     }
 
+    /**
+     * Creates a Button for removing a room.
+     *
+     * @return The created Button.
+     */
     private Button createRemoveRoomButton() {
         Button removeButton = new Button("Remove Room");
         removeButton.setMaxWidth(Double.MAX_VALUE);
@@ -145,10 +173,19 @@ public class RoomPane extends GridPane {
         return removeButton;
     }
 
-    // Layout configuration
+    /**
+     * Configures the layout of the RoomPane.
+     *
+     * @param nameField    The TextField for entering the room name.
+     * @param addButton    The Button for adding a room.
+     * @param removeButton The Button for removing a room.
+     * @param errorLabel   The Label for displaying validation errors.
+     * @param searchField  The TextField for searching rooms.
+     * @param table        The TableView for displaying rooms.
+     */
     private void configureLayout(TextField nameField, Button addButton,
-                                 Button removeButton, Label errorLabel,
-                                 TextField searchField, TableView<Room> table) {
+            Button removeButton, Label errorLabel,
+            TextField searchField, TableView<Room> table) {
         this.setHgap(10);
         this.setVgap(10);
         this.setPadding(new Insets(10));

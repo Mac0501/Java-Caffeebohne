@@ -6,6 +6,10 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 
+/**
+ * A utility class that manages the database connection and performs database
+ * operations.
+ */
 public class DatabaseManager {
     private Connection connection;
 
@@ -13,12 +17,23 @@ public class DatabaseManager {
     private String username;
     private String password;
 
+    /**
+     * Constructs a new `DatabaseManager` with the specified database connection
+     * settings.
+     *
+     * @param dbURL    the URL of the database
+     * @param username the username for the database connection
+     * @param password the password for the database connection
+     */
     public DatabaseManager(String dbURL, String username, String password) {
         this.dbURL = dbURL;
         this.username = username;
         this.password = password;
     }
 
+    /**
+     * Connects to the database using the specified connection settings.
+     */
     public void connect() {
         try {
             connection = DriverManager.getConnection(dbURL, username, password);
@@ -28,6 +43,9 @@ public class DatabaseManager {
         }
     }
 
+    /**
+     * Creates the database tables if they do not already exist.
+     */
     public void createTablesIfNotExists() {
         String createTableQuery;
         try {
@@ -56,6 +74,11 @@ public class DatabaseManager {
         }
     }
 
+    /**
+     * Returns the underlying `Connection` object for the database connection.
+     *
+     * @return the `Connection` object
+     */
     public Connection getConnection() {
         return connection;
     }

@@ -13,12 +13,21 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 
+/**
+ * A graphical user interface component for managing courses and students.
+ */
 public class CoursePane extends GridPane {
     private CourseData courseData;
     private RoomData roomData;
     private final TableView<Course> courseTableView;
     private final TableView<Student> studentTableView;
 
+    /**
+     * Constructs a new CoursePane with the specified CourseData and RoomData.
+     *
+     * @param courseData the CourseData object containing the course information
+     * @param roomData   the RoomData object containing the room information
+     */
     public CoursePane(CourseData courseData, RoomData roomData) {
         this.courseData = courseData;
         this.roomData = roomData;
@@ -27,6 +36,9 @@ public class CoursePane extends GridPane {
         initialize();
     }
 
+    /**
+     * Initializes the CoursePane by creating and configuring its components.
+     */
     private void initialize() {
         TextField searchField = createCourseSearchField(courseTableView);
         TextField nameField = createCourseNameField();
@@ -49,6 +61,8 @@ public class CoursePane extends GridPane {
 
     /**
      * Updates the TableView with the students in the selected course.
+     *
+     * @param course the selected Course object
      */
     private void updateStudentTableView(Course course) {
         if (course != null) {
@@ -58,6 +72,11 @@ public class CoursePane extends GridPane {
         }
     }
 
+    /**
+     * Creates a TableView for displaying courses.
+     *
+     * @return the created TableView
+     */
     private TableView<Course> createCourseTableView() {
         TableView<Course> table = new TableView<>();
         table.setItems(courseData.getCourseList());
@@ -80,6 +99,11 @@ public class CoursePane extends GridPane {
         return table;
     }
 
+    /**
+     * Creates a TableView for displaying students.
+     *
+     * @return the created TableView
+     */
     private TableView<Student> createStudentTableView() {
         TableView<Student> table = new TableView<>();
         table.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
@@ -128,7 +152,12 @@ public class CoursePane extends GridPane {
         return table;
     }
 
-
+    /**
+     * Creates a TextField for searching courses.
+     *
+     * @param table the TableView containing the course data
+     * @return the created TextField
+     */
     private TextField createCourseSearchField(TableView<Course> table) {
         TextField searchField = new TextField();
         searchField.setPromptText("Search Courses...");
@@ -140,6 +169,11 @@ public class CoursePane extends GridPane {
         return searchField;
     }
 
+    /**
+     * Creates a TextField for entering the course name.
+     *
+     * @return the created TextField
+     */
     private TextField createCourseNameField() {
         TextField nameField = new TextField();
         nameField.setPromptText("Course Name");
@@ -147,6 +181,11 @@ public class CoursePane extends GridPane {
         return nameField;
     }
 
+    /**
+     * Creates a ComboBox for selecting a room.
+     *
+     * @return the created ComboBox
+     */
     private ComboBox<Room> createRoomComboBox() {
         ComboBox<Room> roomComboBox = new ComboBox<>(roomData.getRoomList());
         roomComboBox.setPromptText("Select Room");
@@ -179,6 +218,14 @@ public class CoursePane extends GridPane {
         return roomComboBox;
     }
 
+    /**
+     * Creates a button for adding a course.
+     *
+     * @param nameField    the TextField for entering the course name
+     * @param roomComboBox the ComboBox for selecting a room
+     * @param errorLabel   the Label for displaying validation errors
+     * @return the created Button
+     */
     private Button createAddCourseButton(TextField nameField, ComboBox<Room> roomComboBox, Label errorLabel) {
         Button addButton = new Button("Add Course");
         addButton.setMaxWidth(Double.MAX_VALUE);
@@ -206,32 +253,43 @@ public class CoursePane extends GridPane {
         return addButton;
     }
 
+    /**
+     * Creates a button for editing a course.
+     *
+     * @param table the TableView containing the course data
+     * @return the created Button
+     */
     private Button createEditCourseButton(TableView<Course> table) {
-    Button editButton = new Button("Edit Course");
-    editButton.setMaxWidth(Double.MAX_VALUE);
-    editButton.setDisable(true); // Disable the button initially
-    editButton.getStyleClass().add("edit-button");
+        Button editButton = new Button("Edit Course");
+        editButton.setMaxWidth(Double.MAX_VALUE);
+        editButton.setDisable(true); // Disable the button initially
+        editButton.getStyleClass().add("edit-button");
 
-    // Add a listener to enable/disable the button based on selection
-    table.getSelectionModel().selectedItemProperty().addListener((obs, oldSelection, newSelection) -> {
-        if (newSelection != null) {
-            editButton.setDisable(false); // Enable the button when a course is selected
-        } else {
-            editButton.setDisable(true); // Disable the button when no course is selected
-        }
-    });
+        // Add a listener to enable/disable the button based on selection
+        table.getSelectionModel().selectedItemProperty().addListener((obs, oldSelection, newSelection) -> {
+            if (newSelection != null) {
+                editButton.setDisable(false); // Enable the button when a course is selected
+            } else {
+                editButton.setDisable(true); // Disable the button when no course is selected
+            }
+        });
 
-    editButton.setOnAction(e -> {
-        Course selectedCourse = table.getSelectionModel().getSelectedItem();
-        if (selectedCourse != null) {
-            showEditCourseDialog(selectedCourse);
-            updateCourseTableView();
-        }
-    });
+        editButton.setOnAction(e -> {
+            Course selectedCourse = table.getSelectionModel().getSelectedItem();
+            if (selectedCourse != null) {
+                showEditCourseDialog(selectedCourse);
+                updateCourseTableView();
+            }
+        });
 
-    return editButton;
-}
+        return editButton;
+    }
 
+    /**
+     * Shows a dialog for editing a course.
+     *
+     * @param course the Course to edit
+     */
     private void showEditCourseDialog(Course course) {
         Dialog<Course> dialog = new Dialog<>();
         dialog.setTitle("Edit Course");
@@ -258,7 +316,8 @@ public class CoursePane extends GridPane {
 
         dialog.setResultConverter(dialogButton -> {
             if (dialogButton == saveButtonType) {
-                return new Course(course.getId(), nameField.getText(), roomComboBox.getSelectionModel().getSelectedItem());
+                return new Course(course.getId(), nameField.getText(),
+                        roomComboBox.getSelectionModel().getSelectedItem());
             }
             return null;
         });
@@ -269,6 +328,12 @@ public class CoursePane extends GridPane {
         });
     }
 
+    /**
+     * Creates a button for removing a course.
+     *
+     * @param table the TableView containing the course data
+     * @return the created Button
+     */
     private Button createRemoveCourseButton(TableView<Course> table) {
         Button removeButton = new Button("Remove Course");
         removeButton.setMaxWidth(Double.MAX_VALUE);
@@ -284,6 +349,11 @@ public class CoursePane extends GridPane {
         return removeButton;
     }
 
+    /**
+     * Creates a Label for displaying validation errors.
+     *
+     * @return the created Label
+     */
     private Label createErrorLabel() {
         Label errorLabel = new Label();
         errorLabel.getStyleClass().add("error-label");
@@ -295,6 +365,19 @@ public class CoursePane extends GridPane {
         return errorLabel;
     }
 
+    /**
+     * Configures the layout of the main view.
+     *
+     * @param nameField    the TextField for entering the course name
+     * @param roomComboBox the ComboBox for selecting a room
+     * @param addButton    the Button for adding a course
+     * @param editButton   the Button for editing a course
+     * @param removeButton the Button for removing a course
+     * @param errorLabel   the Label for displaying validation errors
+     * @param searchField  the TextField for searching courses
+     * @param courseTable  the TableView for displaying courses
+     * @param studentTable the TableView for displaying students of a course
+     */
     private void configureLayout(TextField nameField, ComboBox<Room> roomComboBox, Button addButton,
                                  Button editButton, Button removeButton, Label errorLabel, TextField searchField,
                                  TableView<Course> courseTable, TableView<Student> studentTable) {
@@ -365,16 +448,22 @@ public class CoursePane extends GridPane {
         GridPane.setVgrow(tableGrid, Priority.ALWAYS);
     }
 
-
-
-
-
-
+    /**
+     * Displays a validation error message in the errorLabel.
+     *
+     * @param errorLabel the Label for displaying the error message
+     * @param message    the error message to display
+     */
     private void displayValidationError(Label errorLabel, String errorMessage) {
         errorLabel.setText(errorMessage);
         errorLabel.setVisible(true);
     }
 
+    /**
+     * Clears the validation error message in the errorLabel.
+     *
+     * @param errorLabel the Label for displaying the error message
+     */
     private void clearValidationError(Label errorLabel) {
         errorLabel.setText("");
         errorLabel.setVisible(false);
