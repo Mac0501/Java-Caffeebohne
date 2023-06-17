@@ -33,6 +33,7 @@ public class StudentData {
     }
 
     public void fetchStudentsFromDatabase() {
+        studentList.clear();
         String selectQuery = "SELECT * FROM student";
         try {
             Statement statement = databaseManager.getConnection().createStatement();

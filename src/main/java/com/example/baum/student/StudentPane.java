@@ -46,6 +46,12 @@ public class StudentPane extends GridPane {
         setVgap(10);
         createAndLayoutComponents();
         setupEventHandlers();
+        this.focusedProperty().addListener((observable, oldValue, newValue) -> {
+            if (newValue) {
+                requestFocus();
+                studentData.fetchStudentsFromDatabase();
+            }
+        });
     }
 
     private void createAndLayoutComponents() {
