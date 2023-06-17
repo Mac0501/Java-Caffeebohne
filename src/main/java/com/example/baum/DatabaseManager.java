@@ -6,21 +6,21 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 
-/**
- * The DatabaseManager class handles the connection to the database and executes
- * SQL queries.
- */
 public class DatabaseManager {
     private Connection connection;
 
-    /**
-     * Connects to the database using the specified URL, username, and password.
-     */
+    private String dbURL;
+    private String username;
+    private String password;
+
+    public DatabaseManager(String dbURL, String username, String password) {
+        this.dbURL = dbURL;
+        this.username = username;
+        this.password = password;
+    }
+
     public void connect() {
         try {
-            String dbURL = "jdbc:mysql://localhost:3307/bambus";
-            String username = "root";
-            String password = "root";
             connection = DriverManager.getConnection(dbURL, username, password);
             System.out.println("Connected to the database!");
         } catch (SQLException e) {
@@ -28,9 +28,6 @@ public class DatabaseManager {
         }
     }
 
-    /**
-     * Creates the necessary tables in the database if they do not already exist.
-     */
     public void createTablesIfNotExists() {
         String createTableQuery;
         try {
@@ -59,11 +56,6 @@ public class DatabaseManager {
         }
     }
 
-    /**
-     * Returns the connection to the database.
-     *
-     * @return The Connection object.
-     */
     public Connection getConnection() {
         return connection;
     }

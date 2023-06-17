@@ -5,6 +5,7 @@ module com.example.baum {
     requires transitive javafx.graphics;
     requires org.controlsfx.controls;
     requires transitive java.sql;
+    requires java.prefs;
 
     opens com.example.baum to javafx.fxml;
     opens com.example.baum.room to javafx.base;

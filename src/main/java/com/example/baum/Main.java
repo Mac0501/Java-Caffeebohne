@@ -1,13 +1,15 @@
 package com.example.baum;
 
 import com.example.baum.DatabaseManager;
-import com.example.baum.student.StudentPane;
 import javafx.application.Application;
+import javafx.geometry.Insets;
+import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.layout.*;
 import javafx.stage.Stage;
 import java.util.Objects;
+import java.util.prefs.Preferences;
 
 import com.example.baum.company.CompanyData;
 import com.example.baum.company.CompanyPane;
@@ -16,10 +18,8 @@ import com.example.baum.course.CoursePane;
 import com.example.baum.room.RoomData;
 import com.example.baum.room.RoomPane;
 import com.example.baum.student.StudentData;
+import com.example.baum.student.StudentPane;
 
-/**
- * The main class for the Student Manager application.
- */
 public class Main extends Application {
 
     private DatabaseManager databaseManager;
@@ -28,50 +28,74 @@ public class Main extends Application {
     private CompanyData companyData;
     private RoomData roomData;
 
-    /**
-     * Starts the Student Manager application.
-     *
-     * @param primaryStage The primary stage for the application.
-     */
+    private TextField dbLinkField;
+    private TextField usernameField;
+    private PasswordField passwordField;
+
+    private Preferences preferences;
+
     @Override
     public void start(Stage primaryStage) {
-        initializeDatabaseAndData();
-
         primaryStage.setTitle("Student Manager");
 
-        TabPane tabPane = new TabPane();
+        preferences = Preferences.userRoot().node(getClass().getName());
 
-        Tab studentTab = new Tab("Students", createStudentPane());
-        Tab courseTab = new Tab("Courses", createCoursePane());
-        Tab companyTab = new Tab("Company", createCompanyPane());
-        Tab roomTab = new Tab("Room", createRoomPane());
+        // Create UI elements for database connection settings
+        dbLinkField = new TextField();
+        dbLinkField.setPromptText("MySQL Database Link");
+        dbLinkField.setText(preferences.get("dbLink", ""));
 
-        tabPane.getTabs().add(studentTab);
-        tabPane.getTabs().add(courseTab);
-        tabPane.getTabs().add(companyTab);
-        tabPane.getTabs().add(roomTab);
+        usernameField = new TextField();
+        usernameField.setPromptText("Username");
+        usernameField.setText(preferences.get("username", ""));
 
-        studentTab.setClosable(false);
-        courseTab.setClosable(false);
-        companyTab.setClosable(false);
-        roomTab.setClosable(false);
+        passwordField = new PasswordField();
+        passwordField.setPromptText("Password");
+        passwordField.setText(preferences.get("password", ""));
 
-        Scene scene = new Scene(tabPane, 800, 600);
-        primaryStage.setScene(scene);
-        primaryStage.getScene().getStylesheets()
-                .add(Objects.requireNonNull(getClass().getResource("/com/example/baum/style.css")).toExternalForm());
+        Button connectButton = new Button("Connect");
+        connectButton.setOnAction(e -> connectToDatabase());
 
+        VBox connectionSettingsBox = new VBox(10, dbLinkField, usernameField, passwordField, connectButton);
+        connectionSettingsBox.setAlignment(Pos.CENTER);
+        connectionSettingsBox.setPadding(new Insets(10));
+
+        primaryStage.setScene(new Scene(connectionSettingsBox, 400, 200));
         primaryStage.show();
+
+        connectToDatabase();
     }
 
-    /**
-     * Initializes the database and data objects.
-     */
-    private void initializeDatabaseAndData() {
-        databaseManager = new DatabaseManager();
-        databaseManager.connect();
-        databaseManager.createTablesIfNotExists();
+    private void connectToDatabase() {
+        String dbLink = dbLinkField.getText();
+        String username = usernameField.getText();
+        String password = passwordField.getText();
 
+        preferences.put("dbLink", dbLink);
+        preferences.put("username", username);
+        preferences.put("password", password);
+
+        databaseManager = new DatabaseManager(dbLink, username, password);
+
+        try {
+            databaseManager.connect();
+            databaseManager.createTablesIfNotExists();
+            initializeData();
+            showMainApplication();
+        } catch (Exception e) {
+            displayErrorAlert("Database Connection Error", "Failed to connect to the database.", e.getMessage());
+        }
+    }
+
+    private void displayErrorAlert(String title, String header, String content) {
+        Alert alert = new Alert(Alert.AlertType.ERROR);
+        alert.setTitle(title);
+        alert.setHeaderText(header);
+        alert.setContentText(content);
+        alert.showAndWait();
+    }
+
+    private void initializeData() {
         roomData = new RoomData(databaseManager);
         courseData = new CourseData(databaseManager, roomData);
         companyData = new CompanyData(databaseManager);
@@ -83,48 +107,49 @@ public class Main extends Application {
         studentData.fetchStudentsFromDatabase();
     }
 
-    /**
-     * Creates the student pane.
-     *
-     * @return The created student pane.
-     */
+    private void showMainApplication() {
+        Stage mainStage = new Stage();
+        mainStage.setTitle("Student Manager");
+
+        TabPane tabPane = new TabPane();
+
+        Tab studentTab = new Tab("Students", createStudentPane());
+        Tab courseTab = new Tab("Courses", createCoursePane());
+        Tab companyTab = new Tab("Company", createCompanyPane());
+        Tab roomTab = new Tab("Room", createRoomPane());
+
+        tabPane.getTabs().addAll(studentTab, courseTab, companyTab, roomTab);
+
+        studentTab.setClosable(false);
+        courseTab.setClosable(false);
+        companyTab.setClosable(false);
+        roomTab.setClosable(false);
+
+        mainStage.setScene(new Scene(tabPane, 800, 600));
+        mainStage.getScene().getStylesheets()
+                .add(Objects.requireNonNull(getClass().getResource("/com/example/baum/style.css")).toExternalForm());
+
+        mainStage.show();
+
+        // Close the connection settings prompt
+        Stage primaryStage = (Stage) dbLinkField.getScene().getWindow();
+        primaryStage.close();
+    }
+
     private Pane createStudentPane() {
-        StudentPane studentPane = new StudentPane(studentData, courseData, companyData);
-        studentPane.setMaxSize(Double.MAX_VALUE, Double.MAX_VALUE);
-        return studentPane;
+        return new StudentPane(studentData, courseData, companyData);
     }
 
-    /**
-     * Creates the course pane.
-     *
-     * @return The created course pane.
-     */
     private Pane createCoursePane() {
-        CoursePane coursePane = new CoursePane(courseData, roomData, studentData);
-        coursePane.setMaxSize(Double.MAX_VALUE, Double.MAX_VALUE);
-        return coursePane;
+        return new CoursePane(courseData, roomData);
     }
 
-    /**
-     * Creates the company pane.
-     *
-     * @return The created company pane.
-     */
     private Pane createCompanyPane() {
-        CompanyPane companyPane = new CompanyPane(companyData);
-        companyPane.setMaxSize(Double.MAX_VALUE, Double.MAX_VALUE);
-        return companyPane;
+        return new CompanyPane(companyData);
     }
 
-    /**
-     * Creates the room pane.
-     *
-     * @return The created room pane.
-     */
     private Pane createRoomPane() {
-        RoomPane roomPane = new RoomPane(roomData);
-        roomPane.setMaxSize(Double.MAX_VALUE, Double.MAX_VALUE);
-        return roomPane;
+        return new RoomPane(roomData);
     }
 
     public static void main(String[] args) {

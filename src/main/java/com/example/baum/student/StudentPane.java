@@ -4,9 +4,12 @@ import com.example.baum.company.Company;
 import com.example.baum.company.CompanyData;
 import com.example.baum.course.Course;
 import com.example.baum.course.CourseData;
+import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
+import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.collections.FXCollections;
+import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -17,7 +20,6 @@ import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 
 import java.util.Optional;
-
 public class StudentPane extends GridPane {
     private TableView<Student> studentTable;
     private TextField nameField;
@@ -30,6 +32,7 @@ public class StudentPane extends GridPane {
     private Button addEditButton;
     private Button removeButton;
     private Button deselectButton;
+    private Button batchChangeButton;
     private final StudentData studentData;
     private final CourseData courseData;
     private final CompanyData companyData;
@@ -40,11 +43,9 @@ public class StudentPane extends GridPane {
         this.studentData = studentData;
         this.courseData = courseData;
         this.companyData = companyData;
-
         setPadding(new Insets(10));
         setHgap(10);
         setVgap(10);
-
         createAndLayoutComponents();
         setupEventHandlers();
     }
@@ -62,14 +63,15 @@ public class StudentPane extends GridPane {
         addEditButton = new Button("Add Student");
         removeButton = new Button("Remove Student");
         deselectButton = new Button("Deselect");
+        batchChangeButton = new Button("Batch Change");
 
         configureTableColumns();
         configureFormFields();
         configureButtons();
 
         VBox vBox = createVBox(searchField, studentTable);
-        VBox formBox = createFormBox(nameField, surnameField, courseComboBox, companyComboBox,
-                javaSkillsLabel, javaSkillsSlider, addEditButton, removeButton, deselectButton, errorLabel);
+        VBox formBox = createFormBox(nameField, surnameField, courseComboBox, companyComboBox, javaSkillsLabel,
+                javaSkillsSlider, addEditButton, batchChangeButton, removeButton, deselectButton, errorLabel);
 
         setPadding(new Insets(10));
         setHgap(10);
@@ -184,42 +186,125 @@ public class StudentPane extends GridPane {
         studentTable.getSelectionModel().selectedItemProperty().addListener((observable, oldSelection, newSelection) -> {
             ObservableList<Student> selectedStudents = studentTable.getSelectionModel().getSelectedItems();
             if (!selectedStudents.isEmpty()) {
-                selectedStudent.set(selectedStudents.get(0));
-                fillFormWithStudentData(selectedStudent.get());
-                addEditButton.setText("Update Student");
-                removeButton.setDisable(false);
-                deselectButton.setDisable(false);
+                if (selectedStudents.size() == 1) {
+                    selectedStudent.set(selectedStudents.get(0));
+                    fillFormWithStudentData(selectedStudent.get());
+                    addEditButton.setText("Update Student");
+                    removeButton.setDisable(false);
+                    deselectButton.setDisable(false);
+                    enableFormFields(true);
+                } else {
+                    selectedStudent.set(null);
+                    clearForm();
+                    removeButton.setDisable(false);
+                    deselectButton.setDisable(false);
+                    enableFormFields(false);
+                }
+                batchChangeButton.disableProperty().unbind();
+                batchChangeButton.setDisable(false);
             } else {
                 selectedStudent.set(null);
                 clearForm();
                 removeButton.setDisable(true);
                 deselectButton.setDisable(true);
+                enableFormFields(true);
+                batchChangeButton.setDisable(true);
             }
         });
     }
 
-    private void configureButtons() {
-        removeButton.setDisable(true);
-        deselectButton.setDisable(true);
-
-        addEditButton.disableProperty().bind(
-                Bindings.isEmpty(nameField.textProperty())
-                        .or(Bindings.isEmpty(surnameField.textProperty()))
-                        .or(Bindings.isNull(companyComboBox.valueProperty()))
-                        .or(Bindings.createBooleanBinding(() -> selectedStudent.get() != null && !isFormChanged(),
-                                nameField.textProperty(),
-                                surnameField.textProperty(),
-                                javaSkillsSlider.valueProperty(),
-                                companyComboBox.valueProperty()
-                        ))
-        );
+    private void enableFormFields(boolean enable) {
+        boolean disableFormFields = !enable || studentTable.getSelectionModel().getSelectedItems().size() > 1;
+        nameField.setDisable(disableFormFields);
+        surnameField.setDisable(disableFormFields);
+        javaSkillsSlider.setDisable(disableFormFields);
+        courseComboBox.setDisable(disableFormFields);
+        companyComboBox.setDisable(disableFormFields);
     }
+
+    private void configureButtons() {
+        removeButton.getStyleClass().add("remove-button"); // Add the "remove-button" style class
+        deselectButton.getStyleClass().add("gray-button"); // Add the "gray-button" style class
+
+        addEditButton.setOnAction(event -> {
+            if (selectedStudent.get() == null) {
+                addStudent();
+            } else {
+                updateStudent(selectedStudent.get());
+            }
+        });
+
+        removeButton.setOnAction(event -> {
+            ObservableList<Student> selectedStudents = studentTable.getSelectionModel().getSelectedItems();
+            if (selectedStudents.size() > 1) {
+                if (!doNotShowAgain) {
+                    CheckBox doNotShowAgainCheckbox = new CheckBox("Do not show this again");
+                    doNotShowAgainCheckbox.setSelected(false);
+                    Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+                    alert.setTitle("Confirmation");
+                    alert.setHeaderText("Remove Multiple Students");
+                    alert.setContentText("Are you sure you want to remove " + selectedStudents.size() + " students?");
+                    alert.getDialogPane().setContent(doNotShowAgainCheckbox);
+
+                    ButtonType okButton = new ButtonType("OK", ButtonBar.ButtonData.OK_DONE);
+                    ButtonType cancelButton = new ButtonType("Cancel", ButtonBar.ButtonData.CANCEL_CLOSE);
+                    alert.getButtonTypes().setAll(okButton, cancelButton);
+
+                    Optional<ButtonType> result = alert.showAndWait();
+
+                    if (result.isPresent() && result.get() == okButton) {
+                        if (doNotShowAgainCheckbox.isSelected()) {
+                            doNotShowAgain = true;
+                        }
+                        studentData.removeStudents(selectedStudents);
+                        clearForm();
+                    }
+                } else {
+                    studentData.removeStudents(selectedStudents);
+                    clearForm();
+                }
+            } else if (selectedStudents.size() == 1) {
+                studentData.removeStudent(selectedStudents.get(0));
+                clearForm();
+            }
+        });
+
+        deselectButton.setOnAction(event -> {
+            deselect();
+        });
+
+        batchChangeButton.setOnAction(event -> {
+            batchChangeStudents();
+        });
+
+        // Disable the Batch Change button initially
+        batchChangeButton.setDisable(true);
+
+        // Enable the Batch Change button if multiple students are selected
+        studentTable.getSelectionModel().getSelectedItems().addListener((ListChangeListener.Change<? extends Student> change) -> {
+            int selectedCount = studentTable.getSelectionModel().getSelectedItems().size();
+            batchChangeButton.setDisable(selectedCount <= 1);
+            addEditButton.setDisable(selectedCount > 1);
+
+            if (selectedCount > 1) {
+                removeButton.setText("Remove Students");
+            } else {
+                removeButton.setText("Remove Student");
+            }
+        });
+    }
+
+
+
+
 
     private void setColumnConstraints() {
         ColumnConstraints column1 = new ColumnConstraints();
         column1.setPercentWidth(70);
+
         ColumnConstraints column2 = new ColumnConstraints();
         column2.setPercentWidth(30);
+
         getColumnConstraints().addAll(column1, column2);
     }
 
@@ -248,16 +333,17 @@ public class StudentPane extends GridPane {
                     alert.setHeaderText("Remove Multiple Students");
                     alert.setContentText("Are you sure you want to remove " + selectedStudents.size() + " students?");
                     alert.getDialogPane().setContent(doNotShowAgainCheckbox);
+
                     ButtonType okButton = new ButtonType("OK", ButtonBar.ButtonData.OK_DONE);
                     ButtonType cancelButton = new ButtonType("Cancel", ButtonBar.ButtonData.CANCEL_CLOSE);
                     alert.getButtonTypes().setAll(okButton, cancelButton);
 
                     Optional<ButtonType> result = alert.showAndWait();
+
                     if (result.isPresent() && result.get() == okButton) {
                         if (doNotShowAgainCheckbox.isSelected()) {
                             doNotShowAgain = true;
                         }
-
                         studentData.removeStudents(selectedStudents);
                         clearForm();
                     }
@@ -273,6 +359,10 @@ public class StudentPane extends GridPane {
 
         deselectButton.setOnAction(event -> {
             deselect();
+        });
+
+        batchChangeButton.setOnAction(event -> {
+            batchChangeStudents();
         });
     }
 
@@ -313,12 +403,9 @@ public class StudentPane extends GridPane {
             student.setCompany(newCompany);
 
             studentData.updateStudent(student);
-
             studentTable.refresh();
-
             clearForm();
             deselect();
-
             studentTable.getSelectionModel().clearSelection();
             studentTable.setStyle("");
         }
@@ -370,19 +457,22 @@ public class StudentPane extends GridPane {
     private void searchStudents(String searchText) {
         String searchTerm = searchText.toLowerCase();
         ObservableList<Student> filteredList = FXCollections.observableArrayList();
+
         for (Student student : studentData.getStudentList()) {
-            if (student.getName().toLowerCase().contains(searchTerm) ||
-                    student.getSurname().toLowerCase().contains(searchTerm) ||
-                    student.getCourse().getName().toLowerCase().contains(searchTerm) ||
-                    student.getCompany().getName().toLowerCase().contains(searchTerm)) {
+            if (student.getName().toLowerCase().contains(searchTerm)
+                    || student.getSurname().toLowerCase().contains(searchTerm)
+                    || student.getCourse().getName().toLowerCase().contains(searchTerm)
+                    || student.getCompany().getName().toLowerCase().contains(searchTerm)) {
                 filteredList.add(student);
             }
         }
+
         studentTable.setItems(filteredList);
     }
 
     private boolean isFormChanged() {
         Student student = selectedStudent.get();
+
         if (student != null) {
             String name = nameField.getText();
             String surname = surnameField.getText();
@@ -390,12 +480,91 @@ public class StudentPane extends GridPane {
             Course course = courseComboBox.getValue();
             Company company = companyComboBox.getValue();
 
-            return !student.getName().equals(name) ||
-                    !student.getSurname().equals(surname) ||
-                    student.getJavaSkills() != javaSkills ||
-                    !student.getCourse().equals(course) ||
-                    !student.getCompany().equals(company);
+            return !student.getName().equals(name)
+                    || !student.getSurname().equals(surname)
+                    || student.getJavaSkills() != javaSkills
+                    || !student.getCourse().equals(course)
+                    || !student.getCompany().equals(company);
         }
+
         return false;
     }
+
+    private void batchChangeStudents() {
+        ObservableList<Student> selectedStudents = studentTable.getSelectionModel().getSelectedItems();
+
+        if (!selectedStudents.isEmpty()) {
+            Dialog<BatchChangeResult> dialog = new Dialog<>();
+            dialog.setTitle("Batch Change");
+            dialog.setHeaderText("Enter New Values for Batch Changes");
+
+            // Apply modern dialog styling
+            dialog.getDialogPane().getStylesheets().add(getClass().getResource("/com/example/baum/style.css").toExternalForm());
+            dialog.getDialogPane().getStyleClass().add("batch-change-dialog");
+
+            GridPane grid = new GridPane();
+            grid.setHgap(10);
+            grid.setVgap(10);
+            grid.setPadding(new Insets(10));
+
+            ComboBox<Course> newCourseComboBox = createComboBox(courseData.getCourseList(), "Select New Course");
+            ComboBox<Company> newCompanyComboBox = createComboBox(companyData.getCompanyList(), "Select New Company");
+
+            grid.add(new Label("New Course:"), 0, 0);
+            grid.add(newCourseComboBox, 1, 0);
+            grid.add(new Label("New Company:"), 0, 1);
+            grid.add(newCompanyComboBox, 1, 1);
+
+            dialog.getDialogPane().setContent(grid);
+            ButtonType batchChangeButtonType = new ButtonType("Batch Change", ButtonBar.ButtonData.OK_DONE);
+            ButtonType cancelButtonType = new ButtonType("Cancel", ButtonBar.ButtonData.CANCEL_CLOSE);
+            dialog.getDialogPane().getButtonTypes().addAll(batchChangeButtonType, cancelButtonType);
+
+            Node batchChangeButton = dialog.getDialogPane().lookupButton(batchChangeButtonType);
+            batchChangeButton.setDisable(true);
+            batchChangeButton.disableProperty().bind(Bindings.createBooleanBinding(
+                    () -> newCourseComboBox.getValue() == null && newCompanyComboBox.getValue() == null,
+                    newCourseComboBox.valueProperty(), newCompanyComboBox.valueProperty()));
+
+            dialog.setResultConverter(dialogButton -> {
+                if (dialogButton == batchChangeButtonType) {
+                    Course newCourse = newCourseComboBox.getValue();
+                    Company newCompany = newCompanyComboBox.getValue();
+                    return new BatchChangeResult(newCourse, newCompany);
+                }
+                return null;
+            });
+
+            Optional<BatchChangeResult> result = dialog.showAndWait();
+            result.ifPresent(batchChangeResult -> {
+                for (Student student : selectedStudents) {
+                    if (batchChangeResult.newCourse != null) {
+                        student.setCourse(batchChangeResult.newCourse);
+                    }
+                    if (batchChangeResult.newCompany != null) {
+                        student.setCompany(batchChangeResult.newCompany);
+                    }
+                    // Update the student in the database
+                    studentData.updateStudent(student);
+                }
+                studentTable.refresh();
+                deselect();
+            });
+        }
+    }
+
+
+    // Helper class to store the batch change result
+    private static class BatchChangeResult {
+        private final Course newCourse;
+        private final Company newCompany;
+
+        public BatchChangeResult(Course newCourse, Company newCompany) {
+            this.newCourse = newCourse;
+            this.newCompany = newCompany;
+        }
+    }
+
+
+
 }

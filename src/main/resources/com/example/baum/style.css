@@ -158,3 +158,68 @@
     -fx-background-color: #e0e0e0;
 }
 
+.batch-change-dialog {
+    -fx-background-color: #f4f4f4;
+}
+
+.batch-change-dialog .dialog-pane {
+    -fx-padding: 20px;
+}
+
+.batch-change-dialog .header-panel {
+    -fx-background-color: #f4f4f4;
+    -fx-padding: 10px;
+}
+
+.batch-change-dialog .header-text {
+    -fx-font-size: 18px;
+}
+
+.batch-change-dialog .content-panel {
+    -fx-background-color: #ffffff;
+    -fx-padding: 10px;
+}
+
+.batch-change-dialog .button-bar {
+    -fx-background-color: #f4f4f4;
+    -fx-padding: 10px;
+}
+
+.batch-change-dialog .button-bar .button {
+    -fx-background-color: #00b050;
+    -fx-text-fill: white;
+    -fx-font-size: 14px;
+    -fx-padding: 5px 20px;
+    -fx-effect: dropshadow(three-pass-box, rgba(0, 0, 0, 0.2), 5, 0.0, 0, 1);
+}
+
+.batch-change-dialog .button-bar .button:hover {
+    -fx-background-color: #009940;
+}
+
+.batch-change-dialog .button-bar .button:pressed {
+    -fx-background-color: #007f32;
+}
+.remove-button {
+    -fx-background-color: #ff5c54; /* Red background color for remove button */
+}
+
+.remove-button:hover {
+    -fx-background-color: #fc736d; /* Darker red background color on hover */
+}
+
+.remove-button:pressed {
+    -fx-background-color: #e63e36; /* Even darker red background color when pressed */
+}
+
+.gray-button {
+    -fx-background-color: #656565; /* Gray background color for deselect button */
+}
+
+.gray-button:hover {
+    -fx-background-color: #919191; /* Darker gray background color on hover */
+}
+
+.gray-button:pressed {
+    -fx-background-color: #808080; /* Even darker gray background color when pressed */
+}
