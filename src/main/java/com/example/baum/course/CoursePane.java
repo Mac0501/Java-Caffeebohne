@@ -13,24 +13,32 @@ import javafx.scene.layout.Priority;
 public class CoursePane extends GridPane {
     private CourseData courseData;
     private RoomData roomData;
+    private final TableView<Course> courseTableView;
 
     public CoursePane(CourseData courseData, RoomData roomData) {
         this.courseData = courseData;
         this.roomData = roomData;
+        this.courseTableView = createCourseTableView();
         initialize();
     }
 
     private void initialize() {
-        TableView<Course> table = createCourseTableView();
-        TextField searchField = createCourseSearchField(table);
+        TextField searchField = createCourseSearchField(courseTableView);
         TextField nameField = createCourseNameField();
         Label errorLabel = createErrorLabel();
         ComboBox<Room> roomComboBox = createRoomComboBox();
         Button addButton = createAddCourseButton(nameField, roomComboBox, errorLabel);
-        Button removeButton = createRemoveCourseButton(table);
+        Button removeButton = createRemoveCourseButton(courseTableView);
 
         configureLayout(nameField, roomComboBox, addButton, removeButton,
-                errorLabel, searchField, table);
+                errorLabel, searchField, courseTableView);
+    }
+    
+    /**
+     * Updates the TableView with the latest room list.
+     */
+    private void updateRoomTableView() {
+        courseTableView.setItems(courseData.getCourseList());
     }
 
     private TableView<Course> createCourseTableView() {
@@ -49,6 +57,7 @@ public class CoursePane extends GridPane {
 
         return table;
     }
+    
 
     private TextField createCourseSearchField(TableView<Course> table) {
         TextField searchField = new TextField();
@@ -121,6 +130,7 @@ public class CoursePane extends GridPane {
             courseData.addCourse(nameField.getText(), selectedRoom.getId());
             nameField.clear();
             roomComboBox.getSelectionModel().clearSelection();
+            updateRoomTableView();
         });
 
         return addButton;
@@ -133,6 +143,7 @@ public class CoursePane extends GridPane {
             Course selected = table.getSelectionModel().getSelectedItem();
             if (selected != null) {
                 courseData.removeCourse(selected);
+                updateRoomTableView();
             }
         });
 

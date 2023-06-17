@@ -81,6 +81,13 @@ public class StudentPane extends GridPane {
         add(formBox, 1, 0);
     }
 
+    /**
+     * Updates the TableView with the latest room list.
+     */
+    private void updateRoomTableView() {
+        studentTable.setItems(studentData.getStudentList());
+    }
+
     private TableView<Student> createTableView() {
         TableView<Student> tableView = new TableView<>();
         tableView.setItems(studentData.getStudentList());
@@ -230,6 +237,7 @@ public class StudentPane extends GridPane {
             } else {
                 updateStudent(selectedStudent.get());
             }
+        updateRoomTableView();
         });
 
         removeButton.setOnAction(event -> {
@@ -265,14 +273,17 @@ public class StudentPane extends GridPane {
                 studentData.removeStudent(selectedStudents.get(0));
                 clearForm();
             }
+            updateRoomTableView();
         });
 
         deselectButton.setOnAction(event -> {
             deselect();
+            updateRoomTableView();
         });
 
         batchChangeButton.setOnAction(event -> {
             batchChangeStudents();
+            updateRoomTableView();
         });
 
         // Disable the Batch Change button initially
@@ -317,6 +328,7 @@ public class StudentPane extends GridPane {
             } else {
                 updateStudent(selectedStudent.get());
             }
+            updateRoomTableView();
         });
 
         removeButton.setOnAction(event -> {
@@ -353,14 +365,17 @@ public class StudentPane extends GridPane {
                 studentData.removeStudent(selectedStudents.get(0));
                 clearForm();
             }
+            updateRoomTableView();
         });
 
         deselectButton.setOnAction(event -> {
             deselect();
+            updateRoomTableView();
         });
 
         batchChangeButton.setOnAction(event -> {
             batchChangeStudents();
+            updateRoomTableView();
         });
     }
 

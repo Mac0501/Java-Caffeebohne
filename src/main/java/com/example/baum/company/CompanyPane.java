@@ -57,6 +57,13 @@ public class CompanyPane extends GridPane {
     }
 
     /**
+     * Updates the TableView with the latest room list.
+     */
+    private void updateRoomTableView() {
+        companyTableView.setItems(companyData.getCompanyList());
+    }
+
+    /**
      * Clears the validation error message from the error label.
      */
     private void clearValidationError() {
@@ -117,6 +124,7 @@ public class CompanyPane extends GridPane {
             clearValidationError();
             companyData.addCompany(nameField.getText());
             nameField.clear();
+            updateRoomTableView();
         });
 
         return addButton;
@@ -129,6 +137,7 @@ public class CompanyPane extends GridPane {
             Company selected = companyTableView.getSelectionModel().getSelectedItem();
             if (selected != null) {
                 companyData.removeCompany(selected);
+                updateRoomTableView();
             }
         });
 

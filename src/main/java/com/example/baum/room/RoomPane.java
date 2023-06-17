@@ -27,6 +27,8 @@ public class RoomPane extends GridPane {
         this.errorLabel = createRoomErrorLabel();
         this.roomTableView = createRoomTableView();
 
+        updateRoomTableView();
+        
         initialize();
     }
 
@@ -63,6 +65,13 @@ public class RoomPane extends GridPane {
         errorLabel.getStyleClass().remove("error-label");
     }
 
+    /**
+     * Updates the TableView with the latest room list.
+     */
+    private void updateRoomTableView() {
+        roomTableView.setItems(roomData.getRoomList());
+    }
+
     // View
     private TextField createRoomSearchField() {
         TextField searchField = new TextField();
@@ -91,7 +100,6 @@ public class RoomPane extends GridPane {
 
     private TableView<Room> createRoomTableView() {
         TableView<Room> table = new TableView<>();
-        table.setItems(roomData.getRoomList());
         table.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
 
         TableColumn<Room, String> nameColumn = new TableColumn<>("Room Name");
@@ -115,6 +123,7 @@ public class RoomPane extends GridPane {
             clearValidationError();
             roomData.addRoom(nameField.getText());
             nameField.clear();
+            updateRoomTableView(); // Update TableView after adding a room
         });
 
         return addButton;
@@ -127,6 +136,7 @@ public class RoomPane extends GridPane {
             Room selected = roomTableView.getSelectionModel().getSelectedItem();
             if (selected != null) {
                 roomData.removeRoom(selected);
+                updateRoomTableView(); // Update TableView after removing a room
             }
         });
 
