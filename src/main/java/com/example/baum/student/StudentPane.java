@@ -380,7 +380,7 @@ public class StudentPane extends GridPane {
         studentTable.getSelectionModel().getSelectedItems()
                 .addListener((ListChangeListener.Change<? extends Student> change) -> {
                     int selectedCount = studentTable.getSelectionModel().getSelectedItems().size();
-                    batchChangeButton.setDisable(selectedCount <= 2);
+                    batchChangeButton.setDisable(selectedCount <= 1);
                     addEditButton.setDisable(selectedCount > 1);
 
                     if (selectedCount > 1) {

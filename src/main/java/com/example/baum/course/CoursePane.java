@@ -334,10 +334,29 @@ public class CoursePane extends GridPane {
      * @param table the TableView containing the course data
      * @return the created Button
      */
+    /**
+     * Creates a button for removing a course.
+     *
+     * @param table the TableView containing the course data
+     * @return the created Button
+     */
     private Button createRemoveCourseButton(TableView<Course> table) {
         Button removeButton = new Button("Remove Course");
         removeButton.setMaxWidth(Double.MAX_VALUE);
         removeButton.getStyleClass().add("remove-button");
+
+        // Disable the button initially
+        removeButton.setDisable(true);
+
+        // Add a listener to enable/disable the button based on selection
+        table.getSelectionModel().selectedItemProperty().addListener((obs, oldSelection, newSelection) -> {
+            if (newSelection != null) {
+                removeButton.setDisable(false); // Enable the button when a course is selected
+            } else {
+                removeButton.setDisable(true); // Disable the button when no course is selected
+            }
+        });
+
         removeButton.setOnAction(e -> {
             Course selectedCourse = table.getSelectionModel().getSelectedItem();
             if (selectedCourse != null) {
@@ -348,6 +367,7 @@ public class CoursePane extends GridPane {
 
         return removeButton;
     }
+
 
     /**
      * Creates a Label for displaying validation errors.
