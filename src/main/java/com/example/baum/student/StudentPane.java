@@ -729,5 +729,9 @@ public class StudentPane extends GridPane {
             this.newCompany = newCompany;
         }
     }
+    public void reloadData() {
+        studentData.fetchStudentsFromDatabase();
+        updateRoomTableView();
+    }
 
 }

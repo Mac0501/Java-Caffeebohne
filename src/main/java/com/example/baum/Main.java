@@ -91,10 +91,10 @@ public class Main extends Application {
             databaseManager.connect();
             databaseManager.createTablesIfNotExists();
             initializeData();
+            showMainApplication();
         } catch (Exception e) {
             displayErrorAlert("Database Connection Error", "Failed to connect to the database.", e.getMessage());
         }
-        showMainApplication();
     }
 
     /**
@@ -148,6 +148,12 @@ public class Main extends Application {
         companyTab.setClosable(false);
         roomTab.setClosable(false);
 
+        tabPane.getSelectionModel().selectedItemProperty().addListener((observable, oldTab, newTab) -> {
+            if (newTab == studentTab) {
+                ((StudentPane) studentTab.getContent()).reloadData();
+            }
+        });
+
         mainStage.setScene(new Scene(tabPane, 800, 600));
         mainStage.getScene().getStylesheets()
                 .add(Objects.requireNonNull(getClass().getResource("/com/example/baum/style.css")).toExternalForm());
@@ -157,6 +163,7 @@ public class Main extends Application {
         Stage primaryStage = (Stage) dbLinkField.getScene().getWindow();
         primaryStage.close();
     }
+
 
     /**
      * Creates the pane for the "Students" tab.
