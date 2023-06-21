@@ -91,10 +91,10 @@ public class Main extends Application {
             databaseManager.connect();
             databaseManager.createTablesIfNotExists();
             initializeData();
-            showMainApplication();
         } catch (Exception e) {
             displayErrorAlert("Database Connection Error", "Failed to connect to the database.", e.getMessage());
         }
+        showMainApplication();
     }
 
     /**
